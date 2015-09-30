@@ -34,21 +34,18 @@ public class MetroButton extends JButton{
         this.setFocusable(false);
         this.setForeground(specialGreen);
         this.setFont(new Font("Segoe UI Semilight",Font.PLAIN,15));
-        this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+        this.setBorder(new MatteBorder(2, 2, 2, 2, specialGreen));
         this.setHorizontalAlignment(JTextField.CENTER);
 
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        //super.paintComponent(g);
-
         if (getModel().isPressed()) state = STATE.PRESSED;
         else if (getModel().isRollover()) state = STATE.HOVER;
         else state = STATE.OFF;
 
         if(state != prevState){
-            System.out.println(state);
             if(state==STATE.OFF) this.setForeground(specialGreen);
             else this.setForeground(Color.BLACK);
 
@@ -56,14 +53,14 @@ public class MetroButton extends JButton{
             else if(state==STATE.HOVER) this.setBorder(new MatteBorder(2, 2, 2, 2, hoverBackgroundColor));
             else this.setBorder(new MatteBorder(2, 2, 2, 2, specialGreen));
         }
-
         prevState = state;
 
-        if (getModel().isPressed()) g.setColor(pressedBackgroundColor);
-        else if (getModel().isRollover()) g.setColor(hoverBackgroundColor);
-        else g.setColor(specialGreen);
+        if (state == STATE.PRESSED) g.setColor(pressedBackgroundColor);
+        else if (state == STATE.HOVER) g.setColor(hoverBackgroundColor);
+        else g.setColor(Color.BLACK);
 
         g.fillRect(0, 0, getWidth(), getHeight());
+
         super.paintComponent(g);
     }
 
