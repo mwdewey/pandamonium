@@ -100,14 +100,12 @@ public class ArpHelper {
         DatagramSocket datagramSocket = new DatagramSocket();
         DatagramPacket packet = new DatagramPacket(new byte[]{}, 0, InetAddress.getLocalHost(), 57);
 
-        for (int i = 0; i < 255; i++) {
-            IP[2] = (byte) (i & (0xff));
-            for(int j = 0; j < 255; j++) {
-                IP[3] = (byte) (j & (0xff));
-                packet.setAddress(InetAddress.getByAddress(IP));
-                datagramSocket.send(packet);
-            }
+        for(int j = 0; j < 255; j++) {
+            IP[3] = (byte) (j & (0xff));
+            packet.setAddress(InetAddress.getByAddress(IP));
+            datagramSocket.send(packet);
         }
+
     }
 
 }
