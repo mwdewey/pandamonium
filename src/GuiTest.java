@@ -1,8 +1,6 @@
-import IPStresser.IPStresserManager;
 import MetroComponents.*;
 import OptionPanes.InterfacePane;
 import OptionPanes.LoginPane;
-import OptionPanes.StresserSettingsPane;
 import Packet.DeviceManager;
 import Packet.PacketManager;
 
@@ -79,7 +77,6 @@ public class GuiTest extends JFrame {
         // Managers
         DeviceManager deviceManager = new DeviceManager(statusLabel2);
         PacketManager packetManager = new PacketManager(table,statusLabel,deviceManager);
-        IPStresserManager ipStresserManager = new IPStresserManager(statusLabel);
 
         connectItem.addActionListener(e -> new LoginPane(this, packetManager));
         interfaceItem.addActionListener(e -> new InterfacePane(this,deviceManager));
