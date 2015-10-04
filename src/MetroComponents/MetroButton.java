@@ -14,7 +14,7 @@ public class MetroButton extends JButton{
 
     Color pressedBackgroundColor = new Color(29,185,84);
     Color hoverBackgroundColor = new Color(3, 170, 60);
-    Color backgroundColor = new Color(255, 255, 255);
+    Color backgroundColor = new Color(30,30,30);
 
     Color darkGray = new Color(40,40,40);
     Color darkerGray = new Color(30,30,30);
@@ -57,7 +57,7 @@ public class MetroButton extends JButton{
 
         if (state == STATE.PRESSED) g.setColor(pressedBackgroundColor);
         else if (state == STATE.HOVER) g.setColor(hoverBackgroundColor);
-        else g.setColor(Color.BLACK);
+        else g.setColor(backgroundColor);
 
         g.fillRect(0, 0, getWidth(), getHeight());
 
