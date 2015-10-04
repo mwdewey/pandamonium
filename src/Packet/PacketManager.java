@@ -22,6 +22,7 @@ public class PacketManager {
     DefaultTableModel model;
     JLabel statusLabel;
     DeviceManager deviceManager;
+    PacketSniffer packetSniffer;
 
     public List<PacketStream> packetStreams;
     boolean connected = false;
@@ -42,14 +43,14 @@ public class PacketManager {
         connected = true;
         statusLabel.setText("Target: " + targetIp);
 
-        PacketSniffer packetSniffer = new PacketSniffer(chooseDevice(),this);
+        packetSniffer = new PacketSniffer(chooseDevice(),this);
         new Thread(packetSniffer).start();
     }
 
     public String chooseDevice(){
         Device selectedDevice = deviceManager.selectedDevice;
 
-        List<PcapIf> alldevs = new ArrayList<PcapIf>();
+        List<PcapIf> alldevs = new ArrayList<>();
         StringBuilder errbuf = new StringBuilder();
         Pcap.findAllDevs(alldevs, errbuf);
 

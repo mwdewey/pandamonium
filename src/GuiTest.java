@@ -1,6 +1,6 @@
 import MetroComponents.*;
 import OptionPanes.InterfacePane;
-import OptionPanes.LoginPane;
+import OptionPanes.ConnectPane;
 import Packet.DeviceManager;
 import Packet.PacketManager;
 
@@ -78,7 +78,7 @@ public class GuiTest extends JFrame {
         DeviceManager deviceManager = new DeviceManager(statusLabel2);
         PacketManager packetManager = new PacketManager(table,statusLabel,deviceManager);
 
-        connectItem.addActionListener(e -> new LoginPane(this, packetManager));
+        connectItem.addActionListener(e -> new ConnectPane(this, packetManager));
         interfaceItem.addActionListener(e -> new InterfacePane(this,deviceManager));
         //buttonStresserSettings.addActionListener(e -> new StresserSettingsPane(this,ipStresserManager));
         clearButton.addActionListener(e -> packetManager.clear());

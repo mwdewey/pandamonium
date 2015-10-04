@@ -1,17 +1,22 @@
 package Arp;
 
+import Packet.Packet;
+import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
+import org.jnetpcap.ByteBufferHandler;
+import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapHeader;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ArpHelper {
     Map<String,String> ouiList;
@@ -95,17 +100,71 @@ public class ArpHelper {
         return (result);
     }
 
-    public void refreshCache() throws Exception{
+    public List<Arp> refreshCache() throws Exception{
         byte[] IP = InetAddress.getLocalHost().getAddress();
-        DatagramSocket datagramSocket = new DatagramSocket();
-        DatagramPacket packet = new DatagramPacket(new byte[]{}, 0, InetAddress.getLocalHost(), 57);
 
-        for(int j = 0; j < 255; j++) {
-            IP[3] = (byte) (j & (0xff));
-            packet.setAddress(InetAddress.getByAddress(IP));
-            datagramSocket.send(packet);
-        }
+        byte[] mac = {0x3c,(byte)0xa9,(byte)0xf4,0x56,(byte)0xa2,(byte)0xac};
+        byte[] sendIp = InetAddress.getLocalHost().getAddress();
+        byte[] targip = InetAddress.getLocalHost().getAddress();
 
+        ArpPacket arpPacket = new ArpPacket(mac,sendIp,targip);
+
+        StringBuilder errbuf = new StringBuilder();
+        int snaplen = 64 * 1024;
+        int flags = Pcap.MODE_NON_PROMISCUOUS;
+        int timeout = 10 * 1000;
+        Pcap pcap = Pcap.openLive("\\Device\\NPF_{6CF302CF-235C-4A1E-86B2-937687018777}", snaplen, flags, timeout, errbuf);
+
+        List<Arp> arpList = new ArrayList<>();
+
+        ByteBufferHandler<List<Arp>> bbh = (PcapHeader packet,ByteBuffer b, List<Arp> arpListLoop) -> {
+            byte[] temp = new byte[b.remaining()];
+            b.get(temp);
+
+            Packet p = new Packet(temp);
+
+            // check if arp packet
+            if(temp[12] == 8 && temp[13] == 6){
+                //System.out.println("Pass");
+                //check if reply
+                if(temp[21] == 2){
+                    byte[] senderMac = Arrays.copyOfRange(temp, 22, 28);
+                    byte[] senderIp = Arrays.copyOfRange(temp, 28, 32);
+
+                    String macString = Packet.macToString(senderMac);
+                    String ouiMac = macString.substring(0,6);
+                    String desc = "-";
+
+                    if(ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
+
+                    arpListLoop.add(new Arp(macString,Packet.ipToString(senderIp),desc));
+                }
+            }
+        };
+
+        new Thread(()->{
+            pcap.loop(0, bbh, arpList);
+        }).start();
+        new Thread(()-> {
+            int temp = targip[2];
+            for (int i = -3; i < 4; i++) {
+                targip[2] = (byte)((temp+i) & 0xff);
+
+                for (int j = 1; j < 256; j++) {
+                    targip[3] = (byte) (j & (0xff));
+                    arpPacket.setTargIp(targip);
+                    byte[] sendPacket = arpPacket.getBytes();
+
+                    pcap.sendPacket(sendPacket);
+                }
+            }
+        }).start();
+
+        Thread.sleep(2000);
+        pcap.breakloop();
+        pcap.close();
+
+        return arpList;
     }
 
 }

@@ -10,6 +10,7 @@ public class PacketSniffer implements Runnable{
 
     String deviceName;
     PacketManager packetManager;
+    Pcap pcap;
 
     PacketSniffer(String deviceName,PacketManager packetManager){
         this.deviceName = deviceName;
@@ -21,7 +22,7 @@ public class PacketSniffer implements Runnable{
         int snaplen = 64 * 1024;
         int flags = Pcap.MODE_NON_PROMISCUOUS;
         int timeout = 10 * 1000;
-        Pcap pcap = Pcap.openLive(deviceName, snaplen, flags, timeout, errbuf);
+        pcap = Pcap.openLive(deviceName, snaplen, flags, timeout, errbuf);
 
         ByteBufferHandler<PacketManager> bbh = (PcapHeader packet,ByteBuffer b, PacketManager pm) -> {
             byte[] temp = new byte[b.remaining()];
@@ -34,6 +35,7 @@ public class PacketSniffer implements Runnable{
         pcap.loop(0, bbh, null);
 
         pcap.close();
+
     }
 
 }

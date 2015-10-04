@@ -14,9 +14,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 
-public class LoginPane extends JDialog {
+public class ConnectPane extends JDialog {
 
-    public LoginPane(Frame parent, PacketManager packetManager) {
+    public ConnectPane(Frame parent, PacketManager packetManager) {
         super(parent);
 
         setModalityType(ModalityType.APPLICATION_MODAL);
@@ -54,12 +54,11 @@ public class LoginPane extends JDialog {
 
         new Thread(()->{
             try {
-                arpHelper.refreshCache();
+                for (Arp.Arp entry : arpHelper.refreshCache()){
+                    model.addRow(new Object[]{entry.getIp(), entry.getMac(), entry.getDef()});
+                }
+                table.updateUI();
             }catch (Exception e){}
-            for( Arp.Arp entry : arpHelper.getAll()){
-                model.addRow(new Object[]{entry.getIp(),entry.getMac(),entry.getDef()});
-            }
-            table.updateUI();
 
         }).start();
 

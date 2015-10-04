@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class Packet {
-    byte[] ipV;
-    byte[] ipSrc;
-    byte[] ipDst;
-    byte[] portSrc;
-    byte[] portDst;
+    public byte[] ipV;
+    public byte[] ipSrc;
+    public byte[] ipDst;
+    public byte[] portSrc;
+    public byte[] portDst;
 
     boolean isIpv6;
     int length;
@@ -27,6 +27,12 @@ public class Packet {
     public static String ipToString(byte[] raw){
         if(raw.length != 4) return null;
         return String.format("%d.%d.%d.%d",raw[0]&0xFF,raw[1]&0xFF,raw[2]&0xFF,raw[3]&0xFF);
+    }
+
+    public static String macToString(byte[] raw){
+        if(raw.length != 6) return null;
+
+        return String.format("%h%h%h%h%h%h",raw[0]&0xff,raw[1]&0xff,raw[2]&0xff,raw[3]&0xff,raw[4]&0xff,raw[5]&0xff);
     }
 
     public static int portToInt(byte[] raw){
