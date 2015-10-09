@@ -11,9 +11,9 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Vector;
 
-public class GuiTest extends JFrame {
+public class Pandamonium extends JFrame {
 
-    GuiTest(){
+    Pandamonium() {
         super("Pandamonium");
         setSize(750, 450);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -30,8 +30,8 @@ public class GuiTest extends JFrame {
         MetroMenu menuSettings = new MetroMenu("File");
         MetroLabel statusLabel = new MetroLabel("Target: unknown");
         MetroLabel statusLabel2 = new MetroLabel("Interface: unknown ");
-        statusLabel.setForeground(new Color(29,185,84));
-        statusLabel2.setForeground(new Color(29,185,84));
+        statusLabel.setForeground(new Color(29, 185, 84));
+        statusLabel2.setForeground(new Color(29, 185, 84));
         menuBar.add(menuSettings);
         MetroItem interfaceItem = new MetroItem("Interface");
         menuSettings.add(interfaceItem);
@@ -60,9 +60,9 @@ public class GuiTest extends JFrame {
         //this.add(menuBarBottom2, BorderLayout.WEST);
 
         MetroTable table = new MetroTable(new DefaultTableModel(
-                new Vector<String>(Arrays.asList("Ip", "Port","Sent","Received","pSent","pReceived","Host")),0));
+                new Vector<String>(Arrays.asList("Ip", "Port", "Sent", "Received", "pSent", "pReceived", "Host")), 0));
 
-        for(int i=0; i < 20; i++){
+        for (int i = 0; i < 20; i++) {
             //((DefaultTableModel)table.getModel()).addRow(new Object[]{"Ip", "Port","Sent","Received","pSent","pReceived","Host"});
         }
 
@@ -76,61 +76,49 @@ public class GuiTest extends JFrame {
 
         // Managers
         DeviceManager deviceManager = new DeviceManager(statusLabel2);
-        PacketManager packetManager = new PacketManager(table,statusLabel,deviceManager);
+        PacketManager packetManager = new PacketManager(table, statusLabel, deviceManager);
 
         connectItem.addActionListener(e -> new ConnectPane(this, packetManager));
-        interfaceItem.addActionListener(e -> new InterfacePane(this,deviceManager));
+        interfaceItem.addActionListener(e -> new InterfacePane(this, deviceManager));
         //buttonStresserSettings.addActionListener(e -> new StresserSettingsPane(this,ipStresserManager));
         clearButton.addActionListener(e -> packetManager.clear());
     }
 
 
+    public static void main(String[] argv) throws Exception {
+        UIManager.put("ScrollBar.background", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.foreground", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.darkShadow", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.highlight", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.shadow", MetroColors.DARK_GRAY);
 
+        UIManager.put("TableHeader.background", MetroColors.DARK_GRAY);
+        UIManager.put("TableHeader.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("TableHeader.cellBorder", new MatteBorder(0, 1, 0, 1, MetroColors.SPECIAL_GREEN));
 
-
-
-
-    public static void main(String[] argv) throws Exception{
-        
-        Color darkGray = new Color(40,40,40);
-        Color darkerGray = new Color(30,30,30);
-        Color specialGreen = new Color(29,185,84);
-        Color specialGreenDark = new Color(3, 170, 60);
-        Color specialText = new Color(190,190,190);
-
-        UIManager.put("ScrollBar.background", darkGray);
-        UIManager.put("ScrollBar.foreground", darkGray);
-        UIManager.put("ScrollBar.darkShadow", darkGray);
-        UIManager.put("ScrollBar.highlight", darkGray);
-        UIManager.put("ScrollBar.shadow", darkGray);
-
-        UIManager.put("TableHeader.background", darkGray);
-        UIManager.put("TableHeader.foreground", specialText);
-        UIManager.put("TableHeader.cellBorder" , new MatteBorder(0,1,0,1, specialGreen));
-
-        UIManager.put("Table.background", darkGray);
-        UIManager.put("Table.foreground", specialText);
-        UIManager.put("Table.selectionBackground", specialGreen);
+        UIManager.put("Table.background", MetroColors.DARK_GRAY);
+        UIManager.put("Table.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("Table.selectionBackground", MetroColors.SPECIAL_GREEN);
         UIManager.put("Table.selectionForeground", Color.BLACK);
 
-        UIManager.put("Menu.background", darkerGray);
-        UIManager.put("Menu.foreground", specialText);
-        UIManager.put("Menu.selectionBackground", specialGreen);
+        UIManager.put("Menu.background", MetroColors.DARKER_GRAY);
+        UIManager.put("Menu.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("Menu.selectionBackground", MetroColors.SPECIAL_GREEN);
         UIManager.put("Menu.selectionForeground", Color.BLACK);
 
-        UIManager.put("MenuItem.background", darkerGray);
-        UIManager.put("MenuItem.foreground", specialText);
-        UIManager.put("MenuItem.selectionBackground", specialGreen);
+        UIManager.put("MenuItem.background", MetroColors.DARKER_GRAY);
+        UIManager.put("MenuItem.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("MenuItem.selectionBackground", MetroColors.SPECIAL_GREEN);
         UIManager.put("MenuItem.selectionForeground", Color.BLACK);
 
-        UIManager.put("MenuBar.background", darkerGray);
-        UIManager.put("MenuBar.foreground", specialText);
-        UIManager.put("MenuBar.borderColor", darkerGray);
-        UIManager.put("MenuBar.darkShadow", darkerGray);
-        UIManager.put("MenuBar.shadow", darkerGray);
-        UIManager.put("MenuBar.highlight", darkerGray);
+        UIManager.put("MenuBar.background", MetroColors.DARKER_GRAY);
+        UIManager.put("MenuBar.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("MenuBar.borderColor", MetroColors.DARKER_GRAY);
+        UIManager.put("MenuBar.darkShadow", MetroColors.DARKER_GRAY);
+        UIManager.put("MenuBar.shadow", MetroColors.DARKER_GRAY);
+        UIManager.put("MenuBar.highlight", MetroColors.DARKER_GRAY);
 
-        GuiTest test = new GuiTest();
+        Pandamonium test = new Pandamonium();
         //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
     }

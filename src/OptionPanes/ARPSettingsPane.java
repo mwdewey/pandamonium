@@ -1,7 +1,6 @@
 package OptionPanes;
 
-import Arp.ArpPoison;
-import MetroComponents.MetroLabel;
+import Arp.ArpProxy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +10,7 @@ import java.awt.*;
  */
 public class ARPSettingsPane extends JDialog {
 
-    public ARPSettingsPane(Frame parent, ArpPoison arpPoison){
+    public ARPSettingsPane(Frame parent, ArpProxy arpProxy){
         super(parent);
 
         setModalityType(Dialog.ModalityType.APPLICATION_MODAL);

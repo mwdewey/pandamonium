@@ -1,5 +1,8 @@
 package Packet;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -100,6 +103,44 @@ public class Packet {
         }
 
         return retVal;
+    }
+
+    public static short getPrefixLength(){
+        try {
+            InetAddress localHost = Inet4Address.getLocalHost();
+            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
+            return networkInterface.getInterfaceAddresses().get(0).getNetworkPrefixLength();
+        }catch (Exception e){return 0;}
+    }
+
+    public static byte[] getNetMask(){
+        short prefixLength = getPrefixLength();
+        byte[] netMask = new byte[4];
+
+        for(int i = 0; i < 4; i++){
+            byte b = 0;
+            for(int j = 0; j < 8; j++){
+                if(i*8+j < prefixLength) b = (byte)(b | 1<<(7-j));
+            }
+            netMask[i] = b;
+        }
+
+        return netMask;
+    }
+
+    public static byte[] getInitIp(){
+        byte[] netMask = getNetMask();
+
+        byte[] initIp;
+        try {
+            initIp = Inet4Address.getLocalHost().getAddress();
+        }catch (Exception e){return null;}
+
+        for(int i = 0; i < 4; i++){
+            initIp[i] = (byte)(initIp[i] & netMask[i]);
+        }
+
+        return initIp;
     }
 
 }
