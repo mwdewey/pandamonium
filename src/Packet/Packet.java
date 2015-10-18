@@ -1,10 +1,13 @@
 package Packet;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.util.*;
 
 public class Packet {
     public byte[] ipV;
@@ -35,7 +38,39 @@ public class Packet {
     public static String macToString(byte[] raw){
         if(raw.length != 6) return null;
 
-        return String.format("%h%h%h%h%h%h",raw[0]&0xff,raw[1]&0xff,raw[2]&0xff,raw[3]&0xff,raw[4]&0xff,raw[5]&0xff);
+        return String.format("%02X:%02X:%02X:%02X:%02X:%02X",raw[0]&0xff,raw[1]&0xff,raw[2]&0xff,raw[3]&0xff,raw[4]&0xff,raw[5]&0xff);
+    }
+
+    public static byte[] ipStringToByte(String ipString){
+        // assume format is n.n.n.n
+
+        byte[] ipbytes = new byte[4];
+        String[] tokens = ipString.split(".");
+
+        if(tokens.length == 4){
+            for(int i=0; i<4; i++){
+                ipbytes[i] = (byte) Integer.parseInt(tokens[i]);
+            }
+
+        }
+
+        return ipbytes;
+    }
+
+    public static byte[] macStringToByte(String macString){
+        // assume MAC string is HH:HH:HH:HH:HH:HH seperated with commas,spaces,colon,pipe, ect
+
+        byte[] macbytes = new byte[6];
+        String[] tokens = macString.split("[: ,|.-_]+");
+
+        if(tokens.length == 6){
+            for(int i=0; i<6; i++){
+                macbytes[i] = (byte) Integer.parseInt(tokens[i],16);
+            }
+
+        }
+
+        return macbytes;
     }
 
     public static int portToInt(byte[] raw){
@@ -141,6 +176,76 @@ public class Packet {
         }
 
         return initIp;
+    }
+
+    // get the gateway's ip for a specific interface
+    public static byte[] getGateIp(byte[] ip){
+
+        String gateIpString = "";
+
+        try
+        {
+            // get gateip from ipv4 route table
+            Process pro = Runtime.getRuntime().exec("cmd.exe /c route print");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pro.getInputStream()));
+
+            String line;
+            while((line = bufferedReader.readLine())!=null)
+            {
+                // remove leading and trailing spaces
+                line = line.trim();
+
+                // split on space and remove consecutive spaces
+                String [] tokens = line.split("[ ]+");
+
+                // an example of a route table entry
+                //Network Destination        Netmask          Gateway        Interface  Metric
+                //            0.0.0.0        0.0.0.0   129.161.67.254   129.161.66.206      25
+                if(tokens.length == 5 && tokens[0].equals("0.0.0.0") && tokens[3].equals(ipToString(ip)))
+                {
+                    gateIpString = tokens[2];
+                }
+            }
+        }
+        catch(Exception e){}
+
+        return ipStringToByte(gateIpString);
+    }
+
+    // get the gateway's mac for a specific interface
+    public static byte[] getGateMac(byte[] ip){
+
+        // get gateway ip
+        byte[] gateIp = getGateIp(ip);
+
+        // use arp table to do a reverse arp lookup for the mac
+        Runtime run = Runtime.getRuntime();
+        String gateMacString = "";
+
+        try {
+            Process proc = run.exec("arp -a");
+            BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line;
+            while ((line = buf.readLine()) != null) {
+                if (line.length() != 0) {
+                    line = line.trim();
+
+                    String[] tokens = line.split("[ ]+");
+                    if (tokens.length != 3) {
+
+                        // now we are looking at entries that look like this:
+                        // 129.161.67.254        40-55-39-24-27-41     dynamic
+                        // we want to match the ip with the mac
+                        if (tokens[0].equals(gateIp)) {
+                            gateMacString = tokens[1];
+                        }
+                    }
+                }
+
+            }
+        } catch (Exception e){}
+
+        return macStringToByte(gateMacString);
     }
 
 }

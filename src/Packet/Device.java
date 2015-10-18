@@ -3,14 +3,11 @@ package Packet;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
-/**
- * Created by Mikes Gaming on 6/1/2015.
- */
 public class Device {
     public String name;
     public String displayName;
     public byte[] mac;
-    public String ip;
+    public byte[] ip;
 
     public Device(NetworkInterface networkInterface){
         this.name = networkInterface.getName();
@@ -22,7 +19,7 @@ public class Device {
         }
 
         try {
-            this.ip = networkInterface.getInterfaceAddresses().get(0).getAddress().getHostAddress();
+            this.ip = networkInterface.getInterfaceAddresses().get(0).getAddress().getAddress();
         }catch (Exception e){}
 
     }

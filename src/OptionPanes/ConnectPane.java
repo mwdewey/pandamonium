@@ -5,6 +5,7 @@ import MetroComponents.MetroButton;
 import MetroComponents.MetroScrollPane;
 import MetroComponents.MetroTable;
 import MetroComponents.MetroTextField;
+import Packet.DeviceManager;
 import Packet.PacketManager;
 
 import java.awt.*;
@@ -16,7 +17,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class ConnectPane extends JDialog {
 
-    public ConnectPane(Frame parent, PacketManager packetManager) {
+    public ConnectPane(Frame parent, PacketManager packetManager, DeviceManager deviceManager) {
         super(parent);
 
         setModalityType(ModalityType.APPLICATION_MODAL);
@@ -52,6 +53,7 @@ public class ConnectPane extends JDialog {
                 new Vector<>(Arrays.asList("IP", "MAC","Description")),0));
         DefaultTableModel model = (DefaultTableModel) table.getModel();
 
+        // populate device list with reachable devices on the network
         new Thread(()->{
             try {
                 for (Arp.Arp entry : arpHelper.refreshCache()){
@@ -62,6 +64,8 @@ public class ConnectPane extends JDialog {
 
         }).start();
 
+        // selection listener
+        // sets the ip field with the selected device
         table.getSelectionModel().addListSelectionListener(e -> textField.setText(table.getValueAt(table.getSelectedRow(), 0).toString()));
 
         MetroScrollPane scrollPane = new MetroScrollPane(table);

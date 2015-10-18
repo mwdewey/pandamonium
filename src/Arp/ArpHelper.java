@@ -32,7 +32,11 @@ public class ArpHelper {
             String shortDef = "";
             String longDef = "";
 
-            if (tokens.length > 0) macAddress = tokens[0].replace(":", "");
+            if (tokens.length > 0) macAddress = tokens[0];
+
+            // skip mac addresses with submac addressing
+            if(macAddress.contains("/") || macAddress.equals("")) continue;
+
             if (tokens.length > 1) shortDef = tokens[1];
 
             if (tokens.length > 2) {
@@ -41,8 +45,8 @@ public class ArpHelper {
                 }
             }
 
-            if (longDef.length() != 0) ouiList.put(macAddress.toLowerCase(), longDef.trim().replace("# ", ""));
-            else ouiList.put(macAddress.toLowerCase(), shortDef);
+            if (longDef.length() != 0) ouiList.put(macAddress, longDef.trim().replace("# ", ""));
+            else ouiList.put(macAddress, shortDef);
         }
     }
 
@@ -126,7 +130,7 @@ public class ArpHelper {
                     byte[] senderIp = Arrays.copyOfRange(temp, 28, 32);
 
                     String macString = Packet.macToString(senderMac);
-                    String ouiMac = macString.substring(0, 6);
+                    String ouiMac = macString.substring(0, 8);
                     String desc = "-";
 
                     if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
@@ -148,7 +152,7 @@ public class ArpHelper {
             while (currIp < numIps) {
 
                 if (initIp[3] == (byte) (0xFF)) {
-                    initIp[3] = 0;
+                    initIp[3] = 1;
                     initIp[2]++;
                 } else initIp[3]++;
 

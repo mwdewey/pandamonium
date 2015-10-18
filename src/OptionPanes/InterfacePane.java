@@ -1,9 +1,6 @@
 package OptionPanes;
 
-import MetroComponents.MetroButton;
-import MetroComponents.MetroLabel;
-import MetroComponents.MetroTable;
-import MetroComponents.MetroTextField;
+import MetroComponents.*;
 import Packet.Device;
 import Packet.DeviceManager;
 
@@ -25,10 +22,10 @@ public class InterfacePane extends JDialog {
         setSize(300,150);
 
         Container pane = getContentPane();
-        pane.setBackground(new Color(30,30,30));
+        pane.setBackground(MetroColors.DARKER_GRAY);
 
         MetroLabel textLabel = new MetroLabel("Interface");
-        textLabel.setForeground(new Color(29,185,84));
+        textLabel.setForeground(MetroColors.SPECIAL_GREEN);
 
         MetroTextField textField = new MetroTextField();
 
@@ -37,13 +34,13 @@ public class InterfacePane extends JDialog {
         Font newFont = new Font(font.getName(),font.getStyle(),15);
         button.setFont(newFont);
         button.addActionListener(e -> {
-            deviceManager.setSelectedDeviceName(textField.getText());
+            deviceManager.chooseNetworkInterface(textField.getText());
             this.setVisible(false);
             this.dispose();
         });
 
-        MetroTable table = new MetroTable(new DefaultTableModel(
-                new Vector<>(Arrays.asList("Interface","Description")),0));
+        // update table with all network devices
+        MetroTable table = new MetroTable(new DefaultTableModel(new Vector<>(Arrays.asList("Interface","Description")),0));
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         for(Device device : deviceManager.getAllDevices()){
             model.addRow(new Object[]{device.name,device.displayName});

@@ -57,7 +57,7 @@ public class PacketManager {
         String selectedDeviceFullName = null;
         for (PcapIf device : alldevs) {
             try {
-                if (selectedDevice.ip.equals(Packet.ipToString(device.getAddresses().get(0).getAddr().getData()))) {
+                if (Arrays.equals(selectedDevice.ip,device.getAddresses().get(0).getAddr().getData())) {
                     System.out.println(device.getName());
                     selectedDeviceFullName = device.getName();
                 }

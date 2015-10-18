@@ -78,9 +78,8 @@ public class Pandamonium extends JFrame {
         DeviceManager deviceManager = new DeviceManager(statusLabel2);
         PacketManager packetManager = new PacketManager(table, statusLabel, deviceManager);
 
-        connectItem.addActionListener(e -> new ConnectPane(this, packetManager));
+        connectItem.addActionListener(e -> new ConnectPane(this, packetManager, deviceManager));
         interfaceItem.addActionListener(e -> new InterfacePane(this, deviceManager));
-        //buttonStresserSettings.addActionListener(e -> new StresserSettingsPane(this,ipStresserManager));
         clearButton.addActionListener(e -> packetManager.clear());
     }
 
