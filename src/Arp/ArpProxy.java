@@ -32,9 +32,9 @@ public class ArpProxy {
 
         // enable proxy
         targRequest = new ArpPacket(ArpPacket.Opcode.REQUEST,targMac,targIp,gateIp,null);
-        targReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,myIp,targIp,targMac);
+        targReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,gateIp,targIp,targMac);
         gateRequest = new ArpPacket(ArpPacket.Opcode.REQUEST,gateMac,gateIp,targIp,null);
-        gateReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,myIp,gateIp,gateMac);
+        gateReply = new ArpPacket(ArpPacket.Opcode.REPLY,myMac,targIp,gateIp,gateMac);
 
         // heal connection
         heal_targReply = new ArpPacket(ArpPacket.Opcode.REPLY,gateMac,gateIp,targIp,targMac);

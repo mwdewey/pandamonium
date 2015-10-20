@@ -1,10 +1,7 @@
 package OptionPanes;
 
 import Arp.ArpHelper;
-import MetroComponents.MetroButton;
-import MetroComponents.MetroScrollPane;
-import MetroComponents.MetroTable;
-import MetroComponents.MetroTextField;
+import MetroComponents.*;
 import Packet.DeviceManager;
 import Packet.PacketManager;
 
@@ -27,16 +24,17 @@ public class ConnectPane extends JDialog {
         setSize(300,150);
 
         Container pane = getContentPane();
-        pane.setBackground(new Color(30,30,30));
+        pane.setBackground(MetroColors.DARKER_GRAY);
 
         JLabel label = new JLabel("IP");
-        label.setForeground(new Color(29,185,84));
+        label.setForeground(MetroColors.SPECIAL_GREEN);
 
         MetroTextField textField = new MetroTextField();
         textField.setHorizontalAlignment(JTextField.CENTER);
 
         SpringLayout layout = new SpringLayout();
 
+        // select button
         MetroButton btn = new MetroButton(" Connect ");
         btn.addActionListener(e -> {
             packetManager.connect(textField.getText());

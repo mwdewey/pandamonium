@@ -36,16 +36,16 @@ public class ArpPacket {
             }
             case REPLY : {
                 this.opCode = new byte[]{0x00, 0x02};
-                this.targMac = targMac;
-                this.macDst = sendMac;
+                this.targMac = targMac != null ? targMac : new byte[6];
+                this.macDst = targMac;
                 break;
             }
             default: break;
         }
 
-        this.sendMac = sendMac;
-        this.sendIp = sendIp;
-        this.targIp = targIp;
+        this.sendMac = sendMac != null ? sendMac : new byte[6];
+        this.sendIp = sendIp != null ? sendIp : new byte[4];
+        this.targIp = targIp != null ? targIp : new byte[4];
 
         constructPacket();
     }
@@ -71,7 +71,7 @@ public class ArpPacket {
         target.put(opCode);
         target.put(this.sendMac);
         target.put(this.sendIp);
-        target.put(targMac);
+        target.put(this.targMac);
         target.put(this.targIp);
     }
 

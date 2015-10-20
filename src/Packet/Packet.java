@@ -45,7 +45,8 @@ public class Packet {
         // assume format is n.n.n.n
 
         byte[] ipbytes = new byte[4];
-        String[] tokens = ipString.split(".");
+
+        String[] tokens = ipString.split("\\.");
 
         if(tokens.length == 4){
             for(int i=0; i<4; i++){
@@ -58,10 +59,10 @@ public class Packet {
     }
 
     public static byte[] macStringToByte(String macString){
-        // assume MAC string is HH:HH:HH:HH:HH:HH seperated with commas,spaces,colon,pipe, ect
+        // assume MAC string is HH:HH:HH:HH:HH:HH seperated with : or -
 
         byte[] macbytes = new byte[6];
-        String[] tokens = macString.split("[: ,|.-_]+");
+        String[] tokens = macString.split("[-:]+");
 
         if(tokens.length == 6){
             for(int i=0; i<6; i++){
@@ -102,7 +103,6 @@ public class Packet {
                     for (final java.util.Enumeration<?> vals = attr.getAll(); vals.hasMoreElements();)
                     {
                         String value = vals.nextElement().toString();
-                        // System.out.println(attrId + ": " + value);
 
                         if ("PTR".equals(attrId))
                         {
@@ -118,11 +118,7 @@ public class Packet {
                 }
                 ctx.close();
             }
-            catch (final javax.naming.NamingException e)
-            {
-                // No reverse DNS that we could find, try with InetAddress
-                System.out.print(""); // NO-OP
-            }
+            catch (final javax.naming.NamingException e) {}
         }
 
         if (null == retVal)
@@ -216,7 +212,7 @@ public class Packet {
     public static byte[] getGateMac(byte[] ip){
 
         // get gateway ip
-        byte[] gateIp = getGateIp(ip);
+        String gateIpString = ipToString(getGateIp(ip));
 
         // use arp table to do a reverse arp lookup for the mac
         Runtime run = Runtime.getRuntime();
@@ -231,19 +227,18 @@ public class Packet {
                     line = line.trim();
 
                     String[] tokens = line.split("[ ]+");
-                    if (tokens.length != 3) {
-
+                    if (tokens.length == 3) {
                         // now we are looking at entries that look like this:
                         // 129.161.67.254        40-55-39-24-27-41     dynamic
                         // we want to match the ip with the mac
-                        if (tokens[0].equals(gateIp)) {
+                        if (tokens[0].equals(gateIpString)) {
                             gateMacString = tokens[1];
                         }
                     }
                 }
 
             }
-        } catch (Exception e){}
+        } catch (Exception e){e.printStackTrace();}
 
         return macStringToByte(gateMacString);
     }

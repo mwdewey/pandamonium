@@ -60,7 +60,6 @@ public class DeviceManager {
         for (PcapIf device : alldevs) {
             try {
                 if (Arrays.equals(this.selectedDevice.ip,device.getAddresses().get(0).getAddr().getData())) {
-                    System.out.println(device.getName());
                     selectedDeviceFullName = device.getName();
                 }
             }catch (Exception e){}
@@ -73,7 +72,6 @@ public class DeviceManager {
         CurrentInstance.setGateIp(Packet.getGateIp(this.selectedDevice.ip));
         CurrentInstance.setGateMac(Packet.getGateMac(this.selectedDevice.ip));
 
-        System.out.println();
     }
 
 }

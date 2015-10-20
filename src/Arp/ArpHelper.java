@@ -1,6 +1,6 @@
 package Arp;
 
-import Packet.Packet;
+import Packet.*;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ArpHelper {
     Map<String, String> ouiList;
@@ -100,27 +101,18 @@ public class ArpHelper {
     }
 
     public List<Arp> refreshCache() throws Exception {
-        byte[] IP = InetAddress.getLocalHost().getAddress();
 
-        byte[] mac = {0x3c, (byte) 0xa9, (byte) 0xf4, 0x56, (byte) 0xa2, (byte) 0xac};
-        byte[] sendIp = InetAddress.getLocalHost().getAddress();
-        byte[] targip = InetAddress.getLocalHost().getAddress();
+        Pcap pcap = CurrentInstance.getPcap();
+        byte[] mac = CurrentInstance.getMyMac();
+        byte[] sendIp = CurrentInstance.getMyIp();
 
-        ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, sendIp, targip, null);
-
-        StringBuilder errbuf = new StringBuilder();
-        int snaplen = 64 * 1024;
-        int flags = Pcap.MODE_NON_PROMISCUOUS;
-        int timeout = 10 * 1000;
-        Pcap pcap = Pcap.openLive("\\Device\\NPF_{6CF302CF-235C-4A1E-86B2-937687018777}", snaplen, flags, timeout, errbuf);
+        ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, sendIp, null, null);
 
         List<Arp> arpList = new ArrayList<>();
 
         ByteBufferHandler<List<Arp>> bbh = (PcapHeader packet, ByteBuffer b, List<Arp> arpListLoop) -> {
             byte[] temp = new byte[b.remaining()];
             b.get(temp);
-
-            Packet p = new Packet(temp);
 
             // check if arp packet
             if (temp[12] == 8 && temp[13] == 6) {
@@ -129,20 +121,14 @@ public class ArpHelper {
                     byte[] senderMac = Arrays.copyOfRange(temp, 22, 28);
                     byte[] senderIp = Arrays.copyOfRange(temp, 28, 32);
 
-                    String macString = Packet.macToString(senderMac);
-                    String ouiMac = macString.substring(0, 8);
-                    String desc = "-";
-
-                    if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
-
-                    arpListLoop.add(new Arp(macString, Packet.ipToString(senderIp), desc));
+                    CurrentInstance.updateArpEntry(senderMac,senderIp);
                 }
             }
         };
 
 
         new Thread(() -> {
-            pcap.loop(0, bbh, arpList);
+            pcap.loop(0, bbh, null);
         }).start();
         new Thread(() -> {
             byte[] initIp = Packet.getInitIp();
@@ -167,7 +153,27 @@ public class ArpHelper {
 
         Thread.sleep(2000);
         pcap.breakloop();
-        pcap.close();
+
+        // add descriptions to arp list
+        for(ByteBuffer macBuffer : CurrentInstance.getArpCache().keySet()){
+            if(macBuffer.array().length == 6){
+                ByteBuffer ipBuff = CurrentInstance.getArpCache().get(macBuffer);
+
+                String macString = Packet.macToString(macBuffer.array());
+                String ouiMac = macString.substring(0, 8);
+                String desc = "-";
+
+                if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
+
+                arpList.add(new Arp(macString, Packet.ipToString(ipBuff.array()), desc));
+            }
+        }
+
+        // sort arp list by ip
+        arpList = arpList.stream().sorted((arp1,arp2) -> Integer.compare(
+                ByteBuffer.wrap(Packet.ipStringToByte(arp1.getIp())).getInt(),
+                ByteBuffer.wrap(Packet.ipStringToByte(arp2.getIp())).getInt())
+        ).collect(Collectors.toList());
 
         return arpList;
     }

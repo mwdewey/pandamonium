@@ -1,5 +1,6 @@
 package Packet;
 
+import Arp.ArpProxy;
 import MetroComponents.MetroTable;
 import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import org.jnetpcap.ByteBufferHandler;
@@ -42,6 +43,17 @@ public class PacketManager {
         targetIp = ip;
         connected = true;
         statusLabel.setText("Target: " + targetIp);
+
+        // target to arp proxy is selected, start the proxy
+        ArpProxy arpProxy = new ArpProxy(CurrentInstance.getPcap()
+                ,Packet.ipStringToByte(targetIp),
+                CurrentInstance.getArpCache().get(ByteBuffer.wrap(Packet.ipStringToByte(targetIp))).array(),
+                CurrentInstance.getMyIp(),
+                CurrentInstance.getMyMac(),
+                CurrentInstance.getGateIp(),
+                CurrentInstance.getGateMac());
+
+        arpProxy.startProxy(5000);
 
         packetSniffer = new PacketSniffer(chooseDevice(),this);
         new Thread(packetSniffer).start();

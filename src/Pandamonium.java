@@ -1,6 +1,8 @@
 import MetroComponents.*;
+import OptionPanes.InfoPane;
 import OptionPanes.InterfacePane;
 import OptionPanes.ConnectPane;
+import Packet.CurrentInstance;
 import Packet.DeviceManager;
 import Packet.PacketManager;
 
@@ -8,7 +10,9 @@ import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class Pandamonium extends JFrame {
@@ -42,8 +46,8 @@ public class Pandamonium extends JFrame {
         menuBar.add(menuSettings2);
         MetroItem buttonPacketSettings = new MetroItem("Packet");
         menuSettings2.add(buttonPacketSettings);
-        MetroItem buttonStresserSettings = new MetroItem("Stresser");
-        menuSettings2.add(buttonStresserSettings);
+        MetroItem buttonInfoSettings = new MetroItem("Info");
+        menuSettings2.add(buttonInfoSettings);
 
         MetroButton clearButton = new MetroButton("Clear");
         //menuBar.add(clearButton);
@@ -73,6 +77,9 @@ public class Pandamonium extends JFrame {
 
         centerPanel.updateUI();
 
+        // init arp cache
+        CurrentInstance.setArpCache(new HashMap<>());
+
 
         // Managers
         DeviceManager deviceManager = new DeviceManager(statusLabel2);
@@ -80,6 +87,7 @@ public class Pandamonium extends JFrame {
 
         connectItem.addActionListener(e -> new ConnectPane(this, packetManager, deviceManager));
         interfaceItem.addActionListener(e -> new InterfacePane(this, deviceManager));
+        buttonInfoSettings.addActionListener(e -> new InfoPane(this));
         clearButton.addActionListener(e -> packetManager.clear());
     }
 
