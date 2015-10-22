@@ -182,7 +182,7 @@ public class Packet {
         try
         {
             // get gateip from ipv4 route table
-            Process pro = Runtime.getRuntime().exec("cmd.exe /c route print");
+            Process pro = Runtime.getRuntime().exec("cmd.exe /c netstat -rn");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 
             String line;
@@ -197,7 +197,7 @@ public class Packet {
                 // an example of a route table entry
                 //Network Destination        Netmask          Gateway        Interface  Metric
                 //            0.0.0.0        0.0.0.0   129.161.67.254   129.161.66.206      25
-                if(tokens.length == 5 && tokens[0].equals("0.0.0.0") && tokens[3].equals(ipToString(ip)))
+                if(tokens.length == 5 && tokens[0].equals("0.0.0.0") && tokens[1].equals("0.0.0.0") && tokens[3].equals(ipToString(ip)))
                 {
                     gateIpString = tokens[2];
                 }

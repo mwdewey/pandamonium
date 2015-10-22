@@ -1,8 +1,5 @@
 package Packet;
 
-/**
- * Created by Mikes Gaming on 5/20/2015.
- */
 public class PacketStream {
     byte[] ip;
     byte[] port;

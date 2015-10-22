@@ -2,16 +2,11 @@ package OptionPanes;
 
 import MetroComponents.MetroColors;
 import Packet.CurrentInstance;
-import Packet.DeviceManager;
 import Packet.Packet;
-import Packet.PacketManager;
 
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Created by Mikes Gaming on 10/20/2015.
- */
 public class InfoPane extends JDialog {
 
     public InfoPane(Frame parent) {

@@ -16,15 +16,13 @@ public class MetroTable extends JTable {
         this.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
         this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         this.setTableHeader(new MetroTableHeader(this.getColumnModel()));
-        this.setGridColor(Color.DARK_GRAY);
+        this.setGridColor(MetroColors.LIGHT_GRAY);
         this.setShowGrid(true);
         this.setIntercellSpacing(new Dimension(0, 0));
         this.setRowHeight(20);
     }
 
-    public boolean isCellEditable(int row, int column) {
-        return false;
-    }
+    public boolean isCellEditable(int row, int column) { return false; }
 
 }
 
@@ -35,11 +33,11 @@ class MetroTableHeader extends JTableHeader {
 
         this.setFocusable(false);
         this.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 14));
-        this.setBackground(new Color(30,30,30));
-        this.setBorder(new MatteBorder(1,1,1,1, new Color(30,30,30)));
+        this.setBackground(MetroColors.DARKER_GRAY);
+        this.setBorder(new MatteBorder(1,1,1,1, MetroColors.DARKER_GRAY));
         this.setReorderingAllowed(false);
         this.setResizingAllowed(true);
-        this.setForeground(new Color(29,185,84));
+        this.setForeground(MetroColors.SPECIAL_GREEN);
 
     }
 }
