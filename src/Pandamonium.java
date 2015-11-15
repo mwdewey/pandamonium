@@ -8,8 +8,13 @@ import Packet.PacketManager;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,9 +53,10 @@ public class Pandamonium extends JFrame {
         menuSettings2.add(buttonPacketSettings);
         MetroItem buttonInfoSettings = new MetroItem("Info");
         menuSettings2.add(buttonInfoSettings);
-
-        MetroButton clearButton = new MetroButton("Clear");
-        //menuBar.add(clearButton);
+        MetroItem clearButton = new MetroItem("Clear Effects");
+        menuSettings2.add(clearButton);
+        MetroItem clearPacketsButton = new MetroItem("Clear Packets");
+        menuSettings2.add(clearPacketsButton);
 
         this.add(menuBar, BorderLayout.NORTH);
 
@@ -66,9 +72,118 @@ public class Pandamonium extends JFrame {
         MetroTable table = new MetroTable(new DefaultTableModel(
                 new Vector<String>(Arrays.asList("Ip", "Port", "Sent", "Received", "pSent", "pReceived", "Host")), 0));
 
-        for (int i = 0; i < 20; i++) {
-            //((DefaultTableModel)table.getModel()).addRow(new Object[]{"Ip", "Port","Sent","Received","pSent","pReceived","Host"});
-        }
+        MetroRightClickMenu rightClickMenu = new MetroRightClickMenu();
+        MetroItem bMetroItem = new MetroItem("Bandwidth");
+        MetroItem lMetroItem = new MetroItem("Latency");
+        MetroItem dMetroItem = new MetroItem("Drop");
+        MetroItem oMetroItem = new MetroItem("Order");
+        MetroItem iMetroItem = new MetroItem("Inject");
+        MetroItem clearMetroItem = new MetroItem("Clear");
+
+        rightClickMenu.add(bMetroItem);
+        rightClickMenu.add(lMetroItem);
+        rightClickMenu.add(dMetroItem);
+        rightClickMenu.add(oMetroItem);
+        rightClickMenu.add(iMetroItem);
+        rightClickMenu.add(clearMetroItem);
+
+        bMetroItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+
+                for(int row : rows){
+                    table.setColorAtIndex(Color.MAGENTA,Color.BLACK,row);
+                }
+
+            }
+        });
+
+        lMetroItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+
+                for(int row : rows){
+                    table.setColorAtIndex(Color.CYAN,Color.BLACK,row);
+                }
+
+            }
+        });
+
+        dMetroItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+
+                for(int row : rows){
+                    table.setColorAtIndex(Color.ORANGE,Color.BLACK,row);
+                }
+
+            }
+        });
+
+        oMetroItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+
+                for(int row : rows){
+                    table.setColorAtIndex(Color.pink,Color.BLACK,row);
+                }
+
+            }
+        });
+
+        iMetroItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+
+                for(int row : rows){
+                    table.setColorAtIndex(MetroColors.SPECIAL_TEXT,Color.BLACK,row);
+                }
+
+            }
+        });
+
+        clearMetroItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+
+                for(int row : rows){
+                    table.setColorAtIndex(MetroColors.DARK_GRAY,MetroColors.SPECIAL_TEXT,row);
+                }
+
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if( e.getButton() == MouseEvent.BUTTON1){
+                    System.out.println("button left");
+                }
+                else if( e.getButton() == MouseEvent.BUTTON3){
+                    System.out.println("button right");
+
+                    rightClickMenu.show(table,e.getX(),e.getY());
+
+                }
+
+                else System.out.println("not a button");
+            }
+
+            public void mouseReleased(MouseEvent e) {
+
+            }
+        });
+
+        /*for (int i = 0; i < 20; i++) {
+            table.colors.add(MetroColors.DARK_GRAY);
+            table.textColors.add(MetroColors.SPECIAL_TEXT);
+            ((DefaultTableModel)table.getModel()).addRow(new Object[]{"123.123.123.123", "80", "45678", "23456", "23", "12", "www.google.com"});
+        }*/
 
         MetroScrollPane pane = new MetroScrollPane(table);
 
@@ -88,7 +203,26 @@ public class Pandamonium extends JFrame {
         connectItem.addActionListener(e -> new ConnectPane(this, packetManager, deviceManager));
         interfaceItem.addActionListener(e -> new InterfacePane(this, deviceManager));
         buttonInfoSettings.addActionListener(e -> new InfoPane(this));
-        clearButton.addActionListener(e -> packetManager.clear());
+        clearButton.addActionListener(e -> {
+            int size = table.colors.size();
+
+            for(int i = 0; i < size; i++){
+                table.setColorAtIndex(MetroColors.DARK_GRAY,MetroColors.SPECIAL_TEXT,i);
+            }
+
+            table.invalidate();
+        });
+
+        clearPacketsButton.addActionListener((e) -> {
+            DefaultTableModel dModel = (DefaultTableModel) table.getModel();
+            int rows = dModel.getRowCount();
+
+            dModel.setRowCount(0);
+            table.colors.clear();
+            table.textColors.clear();
+            packetManager.packetStreams.clear();
+
+        });
     }
 
 

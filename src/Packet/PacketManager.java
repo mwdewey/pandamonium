@@ -1,6 +1,7 @@
 package Packet;
 
 import Arp.ArpProxy;
+import MetroComponents.MetroColors;
 import MetroComponents.MetroTable;
 import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import org.jnetpcap.ByteBufferHandler;
@@ -45,7 +46,7 @@ public class PacketManager {
         statusLabel.setText("Target: " + targetIp);
 
         // target to arp proxy is selected, start the proxy
-        ArpProxy arpProxy = new ArpProxy(CurrentInstance.getPcap()
+       /* ArpProxy arpProxy = new ArpProxy(CurrentInstance.getPcap()
                 ,Packet.ipStringToByte(targetIp),
                 CurrentInstance.getArpCache().get(ByteBuffer.wrap(Packet.ipStringToByte(targetIp))).array(),
                 CurrentInstance.getMyIp(),
@@ -53,7 +54,7 @@ public class PacketManager {
                 CurrentInstance.getGateIp(),
                 CurrentInstance.getGateMac());
 
-        arpProxy.startProxy(5000);
+        arpProxy.startProxy(5000);*/
 
         packetSniffer = new PacketSniffer(chooseDevice(),this);
         new Thread(packetSniffer).start();
@@ -123,6 +124,8 @@ public class PacketManager {
                 packetStreams.add(ps);
 
                 model.addRow(new Object[]{Packet.ipToString(tempIp), Packet.portToInt(tempPort), ps.bytesOut, ps.bytesIn, ps.pSent, ps.pReceived, ps.hostName});
+                table.colors.add(MetroColors.DARK_GRAY);
+                table.textColors.add(MetroColors.SPECIAL_TEXT);
                 new Thread(() -> {
                     String temp = Packet.getHostName(Packet.ipToString(tempIp));
                     if(Packet.ipToString(tempIp).equals(temp)) temp = "-";
