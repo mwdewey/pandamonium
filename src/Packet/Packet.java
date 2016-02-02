@@ -159,13 +159,11 @@ public class Packet {
         return netMask;
     }
 
+    // first ip to list
     public static byte[] getInitIp(){
-        byte[] netMask = getNetMask();
+        byte[] netMask = CurrentInstance.getNetMask();
 
-        byte[] initIp;
-        try {
-            initIp = Inet4Address.getLocalHost().getAddress();
-        }catch (Exception e){return null;}
+        byte[] initIp = CurrentInstance.getMyIp();
 
         for(int i = 0; i < 4; i++){
             initIp[i] = (byte)(initIp[i] & netMask[i]);
@@ -182,7 +180,7 @@ public class Packet {
         try
         {
             // get gateip from ipv4 route table
-            Process pro = Runtime.getRuntime().exec("cmd.exe /c netstat -rn");
+            Process pro = Runtime.getRuntime().exec("route -n");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 
             String line;
@@ -197,9 +195,9 @@ public class Packet {
                 // an example of a route table entry
                 //Network Destination        Netmask          Gateway        Interface  Metric
                 //            0.0.0.0        0.0.0.0   129.161.67.254   129.161.66.206      25
-                if(tokens.length == 5 && tokens[0].equals("0.0.0.0") && tokens[1].equals("0.0.0.0") && tokens[3].equals(ipToString(ip)))
+                if(tokens.length == 8 && tokens[0].equals("0.0.0.0") && !tokens[1].equals("0.0.0.0") )
                 {
-                    gateIpString = tokens[2];
+                    gateIpString = tokens[1];
                 }
             }
         }
@@ -219,7 +217,7 @@ public class Packet {
         String gateMacString = "";
 
         try {
-            Process proc = run.exec("arp -a");
+            Process proc = run.exec("arp -n");
             BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line;
             while ((line = buf.readLine()) != null) {
@@ -227,12 +225,12 @@ public class Packet {
                     line = line.trim();
 
                     String[] tokens = line.split("[ ]+");
-                    if (tokens.length == 3) {
+                    if (tokens.length == 5) {
                         // now we are looking at entries that look like this:
                         // 129.161.67.254        40-55-39-24-27-41     dynamic
                         // we want to match the ip with the mac
                         if (tokens[0].equals(gateIpString)) {
-                            gateMacString = tokens[1];
+                            gateMacString = tokens[2];
                         }
                     }
                 }

@@ -132,7 +132,9 @@ public class ArpHelper {
         }).start();
         new Thread(() -> {
             byte[] initIp = Packet.getInitIp();
-            double numIps = Math.pow(2, 32 - Packet.getPrefixLength());
+            System.out.println(Packet.ipToString(initIp));
+            //double numIps = Math.pow(2, 32 - Packet.getPrefixLength());
+            double numIps = 1;
             int currIp = 0;
 
             while (currIp < numIps) {

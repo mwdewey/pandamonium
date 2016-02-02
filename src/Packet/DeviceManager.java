@@ -1,7 +1,9 @@
 package Packet;
 
 import org.jnetpcap.Pcap;
+import org.jnetpcap.PcapAddr;
 import org.jnetpcap.PcapIf;
+import org.jnetpcap.PcapSockAddr;
 
 import javax.swing.*;
 import java.net.NetworkInterface;
@@ -25,15 +27,14 @@ public class DeviceManager {
 
     public List<Device> getAllDevices(){
         List<Device> devices = new ArrayList<>();
-        Enumeration<NetworkInterface> nets;
-        try {
-            nets = NetworkInterface.getNetworkInterfaces();
-        }catch (Exception e){return null;}
+        List<PcapIf> alldevs = new ArrayList<>();
+        StringBuilder errbuf = new StringBuilder();
+        Pcap.findAllDevs(alldevs, errbuf);
 
-        List<NetworkInterface> netList = Collections.list(nets);
-        for(NetworkInterface device : netList){
+        for(PcapIf device : alldevs){
             try {
-                if(device.isUp() && !device.isLoopback()) devices.add(new Device(device));
+                devices.add(new Device(device));
+
             }catch (Exception e){e.printStackTrace();}
         }
 
@@ -52,25 +53,14 @@ public class DeviceManager {
         this.selectedDevice = selectedDevice;
         statusLabel.setText("Interface: " + name + " ");
 
-        List<PcapIf> alldevs = new ArrayList<>();
-        StringBuilder errbuf = new StringBuilder();
-        Pcap.findAllDevs(alldevs, errbuf);
-
-        String selectedDeviceFullName = null;
-        for (PcapIf device : alldevs) {
-            try {
-                if (Arrays.equals(this.selectedDevice.ip,device.getAddresses().get(0).getAddr().getData())) {
-                    selectedDeviceFullName = device.getName();
-                }
-            }catch (Exception e){}
-        }
-
         // set the current instance to be used elsewhere in the application
-        CurrentInstance.setPcap(selectedDeviceFullName);
+        CurrentInstance.setPcap(name);
         CurrentInstance.setMyIp(this.selectedDevice.ip);
         CurrentInstance.setMyMac(this.selectedDevice.mac);
         CurrentInstance.setGateIp(Packet.getGateIp(this.selectedDevice.ip));
         CurrentInstance.setGateMac(Packet.getGateMac(this.selectedDevice.ip));
+        CurrentInstance.setNetMask(this.selectedDevice.netMask);
+        CurrentInstance.setBroadcastIp(this.selectedDevice.broadcastIp);
 
     }
 

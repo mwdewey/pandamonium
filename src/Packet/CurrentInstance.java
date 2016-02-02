@@ -11,11 +11,13 @@ public class CurrentInstance {
     // shared pcap instance
     private static Pcap pcap;
 
-    // should be static, not chage
+    // should be static, not change
     private static byte[] myIp;
     private static byte[] myMac;
     private static byte[] gateIp;
     private static byte[] gateMac;
+    private static byte[] netMask;
+    private static byte[] broadcastIp;
 
     // application's arp table, used because window doesn't update arp cache unless a packet is sent to the machine
     private static Map<ByteBuffer,ByteBuffer> arpCache;
@@ -62,6 +64,14 @@ public class CurrentInstance {
     public static byte[] getGateMac(){ return gateMac; }
 
     public static void setGateMac(byte[] mac){ gateMac = mac; }
+
+    public static byte[] getNetMask(){ return netMask; }
+
+    public static void setNetMask(byte[] nm){ netMask = nm; }
+
+    public static byte[] getBroadcastIp(){ return broadcastIp; }
+
+    public static void setBroadcastIp(byte[] bIp){ broadcastIp = bIp; }
 
     public static Map<ByteBuffer,ByteBuffer> getArpCache(){ return arpCache; }
 
