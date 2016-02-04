@@ -104,9 +104,11 @@ public class ArpHelper {
 
         Pcap pcap = CurrentInstance.getPcap();
         byte[] mac = CurrentInstance.getMyMac();
-        byte[] sendIp = CurrentInstance.getMyIp();
+        byte[] myIp = CurrentInstance.getMyIp();
+        byte[] targetIp = new byte[4];
 
-        ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, sendIp, null, null);
+        // init arp request packet that will be used to collect all devices on the network
+        ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, myIp, targetIp, null);
 
         List<Arp> arpList = new ArrayList<>();
 
@@ -133,8 +135,11 @@ public class ArpHelper {
         new Thread(() -> {
             byte[] initIp = Packet.getInitIp();
             System.out.println(Packet.ipToString(initIp));
-            //double numIps = Math.pow(2, 32 - Packet.getPrefixLength());
-            double numIps = 1;
+            double numIps = Math.pow(2, 32 - Packet.getPrefixLength(CurrentInstance.getNetMask()));
+            //double numIps = 300;
+
+            System.out.println(numIps);
+
             int currIp = 0;
 
             while (currIp < numIps) {

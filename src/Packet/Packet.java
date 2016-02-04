@@ -136,16 +136,20 @@ public class Packet {
         return retVal;
     }
 
-    public static short getPrefixLength(){
-        try {
-            InetAddress localHost = Inet4Address.getLocalHost();
-            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
-            return networkInterface.getInterfaceAddresses().get(0).getNetworkPrefixLength();
-        }catch (Exception e){return 0;}
+    public static short getPrefixLength(byte[] gatewayIp){
+        short length = 32;
+
+        for(int i = 0; i < gatewayIp.length; i++){
+            for(int i2 = 0; i2 < 8; i2++)
+            if(gatewayIp[i] << i2 == 0x00) length--;
+        }
+
+        return length;
+
     }
 
     public static byte[] getNetMask(){
-        short prefixLength = getPrefixLength();
+        short prefixLength = getPrefixLength(new byte[1]);
         byte[] netMask = new byte[4];
 
         for(int i = 0; i < 4; i++){
