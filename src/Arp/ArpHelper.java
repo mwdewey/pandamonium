@@ -108,7 +108,7 @@ public class ArpHelper {
         byte[] targetIp = new byte[4];
 
         // init arp request packet that will be used to collect all devices on the network
-        ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, myIp, targetIp, null);
+        ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, myIp.clone(), targetIp, null);
 
         List<Arp> arpList = new ArrayList<>();
 
@@ -136,7 +136,7 @@ public class ArpHelper {
             byte[] initIp = Packet.getInitIp();
             System.out.println(Packet.ipToString(initIp));
             double numIps = Math.pow(2, 32 - Packet.getPrefixLength(CurrentInstance.getNetMask()));
-            //double numIps = 300;
+            //double numIps = 1;
 
             System.out.println(numIps);
 
