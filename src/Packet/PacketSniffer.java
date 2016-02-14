@@ -35,7 +35,7 @@ public class PacketSniffer implements Runnable{
         pcap.loop(0, bbh, null);
 
         pcap.close();
-
     }
+
 
 }

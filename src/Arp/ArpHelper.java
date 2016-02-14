@@ -138,7 +138,9 @@ public class ArpHelper {
             double numIps = Math.pow(2, 32 - Packet.getPrefixLength(CurrentInstance.getNetMask()));
             //double numIps = 1;
 
-            System.out.println(numIps);
+            System.out.println("numips: " + numIps);
+            System.out.println("netmask: " + Packet.ipToString(CurrentInstance.getNetMask()));
+            System.out.println("p length: " + Packet.getPrefixLength(CurrentInstance.getNetMask()));
 
             int currIp = 0;
 

@@ -24,7 +24,6 @@ public class PacketManager {
     DefaultTableModel model;
     JLabel statusLabel;
     DeviceManager deviceManager;
-    PacketSniffer packetSniffer;
 
     public List<PacketStream> packetStreams;
     boolean connected = false;
@@ -46,7 +45,7 @@ public class PacketManager {
         statusLabel.setText("Target: " + targetIp);
 
         // target to arp proxy is selected, start the proxy
-       /* ArpProxy arpProxy = new ArpProxy(CurrentInstance.getPcap()
+        ArpProxy arpProxy = new ArpProxy(CurrentInstance.getPcap()
                 ,Packet.ipStringToByte(targetIp),
                 CurrentInstance.getArpCache().get(ByteBuffer.wrap(Packet.ipStringToByte(targetIp))).array(),
                 CurrentInstance.getMyIp(),
@@ -54,10 +53,7 @@ public class PacketManager {
                 CurrentInstance.getGateIp(),
                 CurrentInstance.getGateMac());
 
-        arpProxy.startProxy(5000);*/
-
-        packetSniffer = new PacketSniffer(chooseDevice(),this);
-        new Thread(packetSniffer).start();
+        arpProxy.startProxy(5000);
     }
 
     public String chooseDevice(){
@@ -85,7 +81,7 @@ public class PacketManager {
         try {
             // if packet doesn't match target, drop
             //System.out.println(Packet.ipToString(p.ipSrc) + "|" + Packet.ipToString(p.ipDst));
-            if (!(Packet.ipToString(p.ipSrc).equals(targetIp) ^ Packet.ipToString(p.ipDst).equals(targetIp))) return;
+            if (!(Packet.ipToString(p.ipSrc).equals(targetIp) || Packet.ipToString(p.ipDst).equals(targetIp))) return;
 
             // check if packet is received or sent by target
 

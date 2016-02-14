@@ -68,6 +68,7 @@ public class ArpProxy {
     public void endProxy(){
 
         // heal the connection to the initial state
+        runProxy = false;
 
         // ask target who has gateway
         pcap.sendPacket(targRequest.getBytes());
