@@ -36,7 +36,15 @@ public class ArpHelper {
             if (tokens.length > 0) macAddress = tokens[0];
 
             // skip mac addresses with submac addressing
-            if(macAddress.contains("/") || macAddress.equals("")) continue;
+            /*if(macAddress.contains("/") || macAddress.equals("")) {
+                macAddress = macAddress.substring(0, macAddress.length()-3);//
+            }*/
+            if(macAddress.equals("")) continue;
+
+            //IEEE Registration authority (IAB)
+            if(macAddress.contains("/36") || macAddress.equals("")) {
+                macAddress = macAddress.substring(0, macAddress.length()-6);//remove the trailing :00/36
+            }
 
             if (tokens.length > 1) shortDef = tokens[1];
 
@@ -169,7 +177,7 @@ public class ArpHelper {
                 ByteBuffer ipBuff = CurrentInstance.getArpCache().get(macBuffer);
 
                 String macString = Packet.macToString(macBuffer.array());
-                String ouiMac = macString.substring(0, 8);
+                String ouiMac = macString.substring(0, 8);//TODO: IEEE /36 range
                 String desc = "-";
 
                 if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);

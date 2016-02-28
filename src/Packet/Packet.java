@@ -137,11 +137,11 @@ public class Packet {
     }
 
     public static short getPrefixLength(byte[] gatewayIp){
-        short length = 31;
+        short length = 32;//number of bits total = 32
 
         for(int i = 0; i < gatewayIp.length; i++){
             for(int i2 = 0; i2 < 8; i2++)
-            if(gatewayIp[i] >> i2 == 0x00) length--;
+            if(((gatewayIp[i] << i2)&0xFF) == 0x00) length--;//must shift left since 1s are left aligned in mask
         }
 
         return length;
