@@ -1,3 +1,5 @@
+package Application;
+
 import MetroComponents.*;
 import OptionPanes.InfoPane;
 import OptionPanes.InterfacePane;
@@ -8,14 +10,12 @@ import Packet.PacketManager;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
@@ -27,7 +27,7 @@ public class Pandamonium extends JFrame {
         setSize(750, 450);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setVisible(true);
+        setVisible(false);
         ImageIcon img = new ImageIcon("icon.png");
         this.setIconImage(img.getImage());
 
@@ -38,7 +38,9 @@ public class Pandamonium extends JFrame {
         MetroMenuBar menuBar = new MetroMenuBar();
         MetroMenu menuSettings = new MetroMenu("File");
         MetroLabel statusLabel = new MetroLabel("Target: unknown");
+        GUI.setComponent(GUI.ID.MainTargetStatus,statusLabel);
         MetroLabel statusLabel2 = new MetroLabel("Interface: unknown ");
+        GUI.setComponent(GUI.ID.MainInterfaceStatus,statusLabel2);
         statusLabel.setForeground(new Color(29, 185, 84));
         statusLabel2.setForeground(new Color(29, 185, 84));
         menuBar.add(menuSettings);
@@ -71,6 +73,7 @@ public class Pandamonium extends JFrame {
 
         MetroTable table = new MetroTable(new DefaultTableModel(
                 new Vector<String>(Arrays.asList("Ip", "Port", "Sent", "Received", "pSent", "pReceived", "Host")), 0));
+        GUI.setComponent(GUI.ID.MainPacketTable,table);
 
         MetroRightClickMenu rightClickMenu = new MetroRightClickMenu();
         MetroItem bMetroItem = new MetroItem("Bandwidth");
@@ -197,11 +200,11 @@ public class Pandamonium extends JFrame {
 
 
         // Managers
-        DeviceManager deviceManager = new DeviceManager(statusLabel2);
-        PacketManager packetManager = new PacketManager(table, statusLabel, deviceManager);
+        GUI.setComponent(GUI.ID.DeviceManager,new DeviceManager());
+        GUI.setComponent(GUI.ID.PacketManager,new PacketManager());
 
-        connectItem.addActionListener(e -> new ConnectPane(this, packetManager, deviceManager));
-        interfaceItem.addActionListener(e -> new InterfacePane(this, deviceManager));
+        connectItem.addActionListener(e -> new ConnectPane(this));
+        interfaceItem.addActionListener(e -> new InterfacePane(this));
         buttonInfoSettings.addActionListener(e -> new InfoPane(this));
         clearButton.addActionListener(e -> {
             int size = table.colors.size();
@@ -220,46 +223,17 @@ public class Pandamonium extends JFrame {
             dModel.setRowCount(0);
             table.colors.clear();
             table.textColors.clear();
-            packetManager.packetStreams.clear();
+            ((PacketManager) GUI.getComponent(GUI.ID.PacketManager)).packetStreams.clear();
 
         });
+
+        setVisible(true);
     }
 
 
     public static void main(String[] argv) throws Exception {
-        UIManager.put("ScrollBar.background", MetroColors.DARK_GRAY);
-        UIManager.put("ScrollBar.foreground", MetroColors.DARK_GRAY);
-        UIManager.put("ScrollBar.darkShadow", MetroColors.DARK_GRAY);
-        UIManager.put("ScrollBar.highlight", MetroColors.DARK_GRAY);
-        UIManager.put("ScrollBar.shadow", MetroColors.DARK_GRAY);
-
-        UIManager.put("TableHeader.background", MetroColors.DARK_GRAY);
-        UIManager.put("TableHeader.foreground", MetroColors.SPECIAL_TEXT);
-        UIManager.put("TableHeader.cellBorder", new MatteBorder(0, 1, 0, 1, MetroColors.SPECIAL_GREEN));
-
-        UIManager.put("Table.background", MetroColors.DARK_GRAY);
-        UIManager.put("Table.foreground", MetroColors.SPECIAL_TEXT);
-        UIManager.put("Table.selectionBackground", MetroColors.SPECIAL_GREEN);
-        UIManager.put("Table.selectionForeground", Color.BLACK);
-
-        UIManager.put("Menu.background", MetroColors.DARKER_GRAY);
-        UIManager.put("Menu.foreground", MetroColors.SPECIAL_TEXT);
-        UIManager.put("Menu.selectionBackground", MetroColors.SPECIAL_GREEN);
-        UIManager.put("Menu.selectionForeground", Color.BLACK);
-
-        UIManager.put("MenuItem.background", MetroColors.DARKER_GRAY);
-        UIManager.put("MenuItem.foreground", MetroColors.SPECIAL_TEXT);
-        UIManager.put("MenuItem.selectionBackground", MetroColors.SPECIAL_GREEN);
-        UIManager.put("MenuItem.selectionForeground", Color.BLACK);
-
-        UIManager.put("MenuBar.background", MetroColors.DARKER_GRAY);
-        UIManager.put("MenuBar.foreground", MetroColors.SPECIAL_TEXT);
-        UIManager.put("MenuBar.borderColor", MetroColors.DARKER_GRAY);
-        UIManager.put("MenuBar.darkShadow", MetroColors.DARKER_GRAY);
-        UIManager.put("MenuBar.shadow", MetroColors.DARKER_GRAY);
-        UIManager.put("MenuBar.highlight", MetroColors.DARKER_GRAY);
-
         Pandamonium test = new Pandamonium();
+
         //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
     }

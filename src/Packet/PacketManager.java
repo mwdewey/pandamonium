@@ -1,8 +1,10 @@
 package Packet;
 
+import Application.GUI;
 import Arp.ArpProxy;
 import MetroComponents.MetroColors;
 import MetroComponents.MetroTable;
+import com.sun.xml.internal.bind.v2.model.core.ID;
 import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
@@ -29,11 +31,11 @@ public class PacketManager {
     boolean connected = false;
     String targetIp;
 
-    public PacketManager(MetroTable table,JLabel statusLabel, DeviceManager deviceManager){
-        this.table = table;
+    public PacketManager(){
+        this.table = (MetroTable) GUI.getComponent(GUI.ID.MainPacketTable);
         this.model = (DefaultTableModel) table.getModel();
-        this.statusLabel = statusLabel;
-        this.deviceManager = deviceManager;
+        this.statusLabel = (JLabel) GUI.getComponent(GUI.ID.MainTargetStatus);
+        this.deviceManager = (DeviceManager) GUI.getComponent(GUI.ID.DeviceManager);
 
         this.packetStreams = new ArrayList<>();
     }

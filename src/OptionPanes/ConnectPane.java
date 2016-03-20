@@ -1,5 +1,6 @@
 package OptionPanes;
 
+import Application.GUI;
 import Arp.ArpHelper;
 import MetroComponents.*;
 import Packet.DeviceManager;
@@ -14,8 +15,10 @@ import javax.swing.table.DefaultTableModel;
 
 public class ConnectPane extends JDialog {
 
-    public ConnectPane(Frame parent, PacketManager packetManager, DeviceManager deviceManager) {
+    public ConnectPane(Frame parent) {
         super(parent);
+
+        PacketManager packetManager = (PacketManager) GUI.getComponent(GUI.ID.PacketManager);
 
         setModalityType(ModalityType.APPLICATION_MODAL);
         setTitle("Connect");

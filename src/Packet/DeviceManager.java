@@ -1,5 +1,6 @@
 package Packet;
 
+import Application.GUI;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapAddr;
 import org.jnetpcap.PcapIf;
@@ -9,18 +10,15 @@ import javax.swing.*;
 import java.net.NetworkInterface;
 import java.util.*;
 
-/**
- * Created by Mikes Gaming on 6/1/2015.
- */
 public class DeviceManager {
 
     Device selectedDevice;
     JLabel statusLabel;
     Pcap pcap;
 
-    public DeviceManager(JLabel statusLabel){
+    public DeviceManager(){
 
-        this.statusLabel = statusLabel;
+        this.statusLabel = (JLabel) GUI.getComponent(GUI.ID.MainInterfaceStatus);
         selectedDevice = null;
 
     }

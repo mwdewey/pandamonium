@@ -7,8 +7,14 @@ import java.awt.*;
 public class MetroScrollBar extends JScrollBar {
 
     public MetroScrollBar(int orientation) {
-
         super(orientation);
+
+        UIManager.put("ScrollBar.background", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.foreground", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.darkShadow", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.highlight", MetroColors.DARK_GRAY);
+        UIManager.put("ScrollBar.shadow", MetroColors.DARK_GRAY);
+        SwingUtilities.updateComponentTreeUI(this);
 
         this.setUI(new CustomUI());
 
@@ -32,7 +38,7 @@ class CustomUI extends MetalScrollBarUI {
 
     @Override
     protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
-        g.setColor(new Color(29,185,84));
+        g.setColor(MetroColors.SPECIAL_GREEN);
         g.fillRect(thumbRect.x, thumbRect.y, r.width, r.height);
     }
 

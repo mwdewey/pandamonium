@@ -14,6 +14,12 @@ public class MetroTable extends JTable {
     public MetroTable(TableModel model){
         super(model);
 
+        UIManager.put("Table.background", MetroColors.DARK_GRAY);
+        UIManager.put("Table.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("Table.selectionBackground", MetroColors.SPECIAL_GREEN);
+        UIManager.put("Table.selectionForeground", Color.BLACK);
+        SwingUtilities.updateComponentTreeUI(this);
+
         this.setFocusable(false);
         this.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
         this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -78,6 +84,11 @@ class MetroTableHeader extends JTableHeader {
 
     public MetroTableHeader(TableColumnModel model){
         super(model);
+
+        UIManager.put("TableHeader.background", MetroColors.DARK_GRAY);
+        UIManager.put("TableHeader.foreground", MetroColors.SPECIAL_TEXT);
+        UIManager.put("TableHeader.cellBorder", new MatteBorder(0, 1, 0, 1, MetroColors.SPECIAL_GREEN));
+        SwingUtilities.updateComponentTreeUI(this);
 
         this.setFocusable(false);
         this.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 14));

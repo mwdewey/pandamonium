@@ -1,5 +1,6 @@
 package OptionPanes;
 
+import Application.GUI;
 import MetroComponents.*;
 import Packet.Device;
 import Packet.DeviceManager;
@@ -12,8 +13,10 @@ import java.util.Vector;
 
 public class InterfacePane extends JDialog {
 
-    public InterfacePane(Frame parent,DeviceManager deviceManager){
+    public InterfacePane(Frame parent){
         super(parent);
+
+        DeviceManager deviceManager = (DeviceManager) GUI.getComponent(GUI.ID.DeviceManager);
 
         setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         setTitle("Connect");
