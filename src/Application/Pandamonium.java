@@ -7,6 +7,8 @@ import OptionPanes.ConnectPane;
 import Packet.CurrentInstance;
 import Packet.DeviceManager;
 import Packet.PacketManager;
+import Table.MainTableModel;
+import Table.TableObject;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -71,8 +73,7 @@ public class Pandamonium extends JFrame {
         menuBarBottom2.add(new JLabel("X"));
         //this.add(menuBarBottom2, BorderLayout.WEST);
 
-        MetroTable table = new MetroTable(new DefaultTableModel(
-                new Vector<String>(Arrays.asList("Ip", "Port", "Sent", "Received", "pSent", "pReceived", "Host")), 0));
+        MetroTable table = new MetroTable(new MainTableModel());
         GUI.setComponent(GUI.ID.MainPacketTable,table);
 
         MetroRightClickMenu rightClickMenu = new MetroRightClickMenu();
@@ -182,11 +183,11 @@ public class Pandamonium extends JFrame {
             }
         });
 
-        /*for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 20; i++) {
             table.colors.add(MetroColors.DARK_GRAY);
             table.textColors.add(MetroColors.SPECIAL_TEXT);
-            ((DefaultTableModel)table.getModel()).addRow(new Object[]{"123.123.123.123", "80", "45678", "23456", "23", "12", "www.google.com"});
-        }*/
+            ((MainTableModel)table.getModel()).addElement(new TableObject("192.168.0.1",80,50,50,1,1,"local",i));
+        }
 
         MetroScrollPane pane = new MetroScrollPane(table);
 
@@ -234,7 +235,6 @@ public class Pandamonium extends JFrame {
     public static void main(String[] argv) throws Exception {
         Pandamonium test = new Pandamonium();
 
-        //UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
     }
 }

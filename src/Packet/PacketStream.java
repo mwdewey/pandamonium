@@ -23,9 +23,6 @@ public class PacketStream {
         pReceived = 0;
         pSent = 0;
 
-        //hostName = Packet.getHostName(Packet.ipToString(ip));
-        //if(hostName.equals(Packet.ipToString(ip))) hostName = "";
-
         if(isIncomming) bytesIn = length;
         else bytesOut = length;
 

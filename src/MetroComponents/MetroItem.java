@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MetroItem extends JMenuItem {
-    Color hoverBackgroundColor = new Color(10,194,22);
-    Color pressedBackgroundColor = new Color(9,170,20);
-    Color backgroundColor = new Color(255, 255, 255);
 
     public MetroItem(String text){
         super(text);

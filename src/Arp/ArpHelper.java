@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 public class ArpHelper {
     Map<String, String> ouiList;
-    private final String IEEE_REGI = "70:B3:D5";//Start of IEEE Registered  addresses (/36)
 
     public ArpHelper() {
 
@@ -36,16 +35,11 @@ public class ArpHelper {
 
             if (tokens.length > 0) macAddress = tokens[0];
 
-            // skip mac addresses with submac addressing
-            /*if(macAddress.contains("/") || macAddress.equals("")) {
-                macAddress = macAddress.substring(0, macAddress.length()-3);//
-            }*/
+            // if can't parse mac, entry is invalid
             if(macAddress.equals("")) continue;
 
-            //IEEE Registration authority (IAB)
-            if(macAddress.contains("/36") || macAddress.equals("")) {
-                macAddress = macAddress.substring(0, macAddress.length()-7);//remove the trailing 0:00/36
-            }//changed -6 to -7 since /36 means it uses 4 and a half bytes not 5 full bytes
+            // 36-bit OUI def
+            if(macAddress.contains("/36")) macAddress = macAddress.substring(0,13);
 
             if (tokens.length > 1) shortDef = tokens[1];
 
@@ -145,13 +139,6 @@ public class ArpHelper {
             byte[] initIp = Packet.getInitIp();
             System.out.println(Packet.ipToString(initIp));
             double numIps = Math.pow(2, 32 - Packet.getPrefixLength(CurrentInstance.getNetMask()));
-            //double numIps = 1;
-
-/*
-            System.out.println("numips: " + numIps);
-            System.out.println("netmask: " + Packet.ipToString(CurrentInstance.getNetMask()));
-            System.out.println("p length: " + Packet.getPrefixLength(CurrentInstance.getNetMask()));
-*/
             int currIp = 0;
 
             while (currIp < numIps) {
@@ -179,20 +166,19 @@ public class ArpHelper {
                 ByteBuffer ipBuff = CurrentInstance.getArpCache().get(macBuffer);
 
                 String macString = Packet.macToString(macBuffer.array());
-                String ouiMac = "";
+                if(macString == null) macString = "";
                 String desc = "-";
-                try{
-                    ouiMac = macString.substring(0, 8);//get the 24 bit identifier
 
-                if(ouiMac.equals(IEEE_REGI)){//test if in the range that indicates 36 bit identifiers
-                    ouiMac = macString.substring(0, 13);//extend
-                }//TODO: test -Alan
-                /*else{//24 bit identifier
+                String ouiMac = macString.substring(0, 13);
+                if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
+                else {
                     ouiMac = macString.substring(0, 8);
-                }*/
+
                     if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
-                    arpList.add(new Arp(macString, Packet.ipToString(ipBuff.array()), desc));
-                }catch(NullPointerException e){}
+                }
+
+                arpList.add(new Arp(macString, Packet.ipToString(ipBuff.array()), desc));
+
             }
         }
 

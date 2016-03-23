@@ -4,6 +4,8 @@ import Application.GUI;
 import Arp.ArpProxy;
 import MetroComponents.MetroColors;
 import MetroComponents.MetroTable;
+import Table.MainTableModel;
+import Table.TableObject;
 import com.sun.xml.internal.bind.v2.model.core.ID;
 import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import org.jnetpcap.ByteBufferHandler;
@@ -23,7 +25,7 @@ import java.util.List;
 
 public class PacketManager {
     MetroTable table;
-    DefaultTableModel model;
+    MainTableModel model;
     JLabel statusLabel;
     DeviceManager deviceManager;
 
@@ -33,7 +35,7 @@ public class PacketManager {
 
     public PacketManager(){
         this.table = (MetroTable) GUI.getComponent(GUI.ID.MainPacketTable);
-        this.model = (DefaultTableModel) table.getModel();
+        this.model = (MainTableModel) table.getModel();
         this.statusLabel = (JLabel) GUI.getComponent(GUI.ID.MainTargetStatus);
         this.deviceManager = (DeviceManager) GUI.getComponent(GUI.ID.DeviceManager);
 
@@ -55,7 +57,7 @@ public class PacketManager {
                 CurrentInstance.getGateIp(),
                 CurrentInstance.getGateMac());
 
-        arpProxy.startProxy(5000);
+        //arpProxy.startProxy(5000);
     }
 
     public String chooseDevice(){
@@ -121,7 +123,7 @@ public class PacketManager {
                 PacketStream ps = new PacketStream(tempIp, tempPort, p.length, model.getRowCount(), targetIp);
                 packetStreams.add(ps);
 
-                model.addRow(new Object[]{Packet.ipToString(tempIp), Packet.portToInt(tempPort), ps.bytesOut, ps.bytesIn, ps.pSent, ps.pReceived, ps.hostName});
+                model.addElement(new TableObject(Packet.ipToString(tempIp), Packet.portToInt(tempPort), ps.bytesOut, ps.bytesIn, ps.pSent, ps.pReceived, ps.hostName,0));
                 table.colors.add(MetroColors.DARK_GRAY);
                 table.textColors.add(MetroColors.SPECIAL_TEXT);
                 new Thread(() -> {
@@ -137,7 +139,7 @@ public class PacketManager {
     public void clear(){
         System.out.println("List cleared");
         packetStreams.clear();
-        model.setRowCount(0);
+        model.clear();
 
     }
 }
