@@ -10,23 +10,38 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 public class Packet {
+    public byte[] raw;
+    public byte[] type;
     public byte[] ipV;
     public byte[] ipSrc;
     public byte[] ipDst;
     public byte[] portSrc;
     public byte[] portDst;
 
-    boolean isIpv6;
-    int length;
+    public boolean isIp;
+    public boolean isIpv6;
+    public int length;
+
+    private static byte[] IP_TYPE = new byte[]{0x08,0x00};
+    private static byte[] IPV6_TYPE = new byte[]{(byte)0x86,(byte)0xdd};
+
 
     public Packet(byte[] raw){
-        ipV     = Arrays.copyOfRange(raw, 14, 15);
-        ipSrc   = Arrays.copyOfRange(raw, 26, 30);
-        ipDst   = Arrays.copyOfRange(raw, 30, 34);
-        portSrc = Arrays.copyOfRange(raw, 34, 36);
-        portDst = Arrays.copyOfRange(raw, 36, 38);
+        this.raw = raw;
+        type = Arrays.copyOfRange(raw, 12, 14);
+        ipV = Arrays.copyOfRange(raw, 14, 15);
 
-        isIpv6 = ipV[0] != 69;
+        isIp = Arrays.equals(type,IP_TYPE);
+
+        if(isIp) {
+            ipSrc = Arrays.copyOfRange(raw, 26, 30);
+            ipDst = Arrays.copyOfRange(raw, 30, 34);
+            portSrc = Arrays.copyOfRange(raw, 34, 36);
+            portDst = Arrays.copyOfRange(raw, 36, 38);
+
+            isIpv6 = Arrays.equals(type,IPV6_TYPE);
+        }
+
         length = raw.length;
     }
 

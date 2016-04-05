@@ -1,19 +1,19 @@
 package Packet;
 
 public class PacketStream {
-    byte[] ip;
-    byte[] port;
+    public byte[] ip;
+    public byte[] port;
 
-    String hostName;
-    int bytesIn;
-    int bytesOut;
-    int pReceived;
-    int pSent;
+    public String hostName;
+    public int bytesIn;
+    public int bytesOut;
+    public int pReceived;
+    public int pSent;
 
-    int row;
-    boolean isIncomming;
+    public int row;
+    public boolean isIncomming;
 
-    PacketStream(byte[] ipRaw,byte[] portRaw, int length, int row, String ipTarget){
+    public PacketStream(byte[] ipRaw,byte[] portRaw, int length, int row, String ipTarget){
         this.ip = ipRaw;
         this.port = portRaw;
         this.row = row;

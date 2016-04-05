@@ -166,16 +166,12 @@ public class Pandamonium extends JFrame {
         table.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if( e.getButton() == MouseEvent.BUTTON1){
-                    System.out.println("button left");
                 }
                 else if( e.getButton() == MouseEvent.BUTTON3){
-                    System.out.println("button right");
 
                     rightClickMenu.show(table,e.getX(),e.getY());
 
                 }
-
-                else System.out.println("not a button");
             }
 
             public void mouseReleased(MouseEvent e) {
@@ -183,11 +179,11 @@ public class Pandamonium extends JFrame {
             }
         });
 
-        for (int i = 0; i < 20; i++) {
+       /* for (int i = 0; i < 20; i++) {
             table.colors.add(MetroColors.DARK_GRAY);
             table.textColors.add(MetroColors.SPECIAL_TEXT);
             ((MainTableModel)table.getModel()).addElement(new TableObject("192.168.0.1",80,50,50,1,1,"local",i));
-        }
+        } */
 
         MetroScrollPane pane = new MetroScrollPane(table);
 

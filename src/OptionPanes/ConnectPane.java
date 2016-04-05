@@ -5,6 +5,8 @@ import Arp.ArpHelper;
 import MetroComponents.*;
 import Packet.DeviceManager;
 import Packet.PacketManager;
+import Table.ARPTableModel;
+import Table.ARPTableObject;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -49,18 +51,37 @@ public class ConnectPane extends JDialog {
         btn.setFont(newFont);
         btn.setMargin(new Insets(5,5,5,5));
 
-        ArpHelper arpHelper = new ArpHelper();
-        MetroTable table = new MetroTable(new DefaultTableModel(
-                new Vector<>(Arrays.asList("IP", "MAC","Description")),0));
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        // refresh button
+        MetroButton refreshBtn = new MetroButton(" Refresh ");
+        refreshBtn.addActionListener(e -> {
+            MetroTable table = (MetroTable) GUI.getComponent(GUI.ID.ARPTable);
+
+            if(table == null) return;
+
+            ARPTableModel model = (ARPTableModel) table.getModel();
+
+            if(model != null){
+                model.clear();
+            }
+
+            ArpHelper.GetInstance().refreshCache();
+        });
+        refreshBtn.setFont(newFont);
+        refreshBtn.setMargin(new Insets(5,5,5,5));
+
+        ArpHelper arpHelper = ArpHelper.GetInstance();
+        MetroTable table = new MetroTable(new ARPTableModel());
+        GUI.setComponent(GUI.ID.ARPTable,table);
+        ARPTableModel model = (ARPTableModel) table.getModel();
 
         // populate device list with reachable devices on the network
         new Thread(()->{
             try {
-                for (Arp.Arp entry : arpHelper.refreshCache()){
-                    model.addRow(new Object[]{entry.getIp(), entry.getMac(), entry.getDef()});
+                for (ARPTableObject arpTableObject : arpHelper.getCache()){
+                    model.addElement(arpTableObject);
                 }
                 table.updateUI();
+
             }catch (Exception e){}
 
         }).start();
@@ -78,8 +99,11 @@ public class ConnectPane extends JDialog {
         layout.putConstraint(SpringLayout.NORTH, textField, 5, SpringLayout.NORTH, pane);
         layout.putConstraint(SpringLayout.EAST, textField, -5, SpringLayout.WEST, btn);
 
-        layout.putConstraint(SpringLayout.EAST, btn, -5, SpringLayout.EAST, pane);
+        layout.putConstraint(SpringLayout.EAST, btn, -5, SpringLayout.WEST, refreshBtn);
         layout.putConstraint(SpringLayout.NORTH, btn, 5, SpringLayout.NORTH, pane);
+
+        layout.putConstraint(SpringLayout.EAST, refreshBtn, -5, SpringLayout.EAST, pane);
+        layout.putConstraint(SpringLayout.NORTH, refreshBtn, 5, SpringLayout.NORTH, pane);
 
         layout.putConstraint(SpringLayout.NORTH, scrollPane, 12, SpringLayout.SOUTH, label);
         layout.putConstraint(SpringLayout.WEST, scrollPane, 5, SpringLayout.WEST, pane);
@@ -90,6 +114,7 @@ public class ConnectPane extends JDialog {
         pane.add(label);
         pane.add(textField);
         pane.add(btn);
+        pane.add(refreshBtn);
         pane.add(scrollPane);
 
 

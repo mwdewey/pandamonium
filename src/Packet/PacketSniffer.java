@@ -1,5 +1,6 @@
 package Packet;
 
+import Application.GUI;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
@@ -12,9 +13,9 @@ public class PacketSniffer implements Runnable{
     PacketManager packetManager;
     Pcap pcap;
 
-    PacketSniffer(String deviceName,PacketManager packetManager){
+    PacketSniffer(String deviceName){
         this.deviceName = deviceName;
-        this.packetManager = packetManager;
+        this.packetManager = (PacketManager) GUI.getComponent(GUI.ID.PacketManager);
     }
 
     public void run(){
@@ -22,7 +23,9 @@ public class PacketSniffer implements Runnable{
         int snaplen = 64 * 1024;
         int flags = Pcap.MODE_NON_PROMISCUOUS;
         int timeout = 10 * 1000;
+
         pcap = Pcap.openLive(deviceName, snaplen, flags, timeout, errbuf);
+        CurrentInstance.setPcap(pcap);
 
         ByteBufferHandler<PacketManager> bbh = (PcapHeader packet,ByteBuffer b, PacketManager pm) -> {
             byte[] temp = new byte[b.remaining()];

@@ -60,6 +60,9 @@ public class DeviceManager {
         CurrentInstance.setNetMask(this.selectedDevice.netMask);
         CurrentInstance.setBroadcastIp(this.selectedDevice.broadcastIp);
 
+        // start pcap
+        PacketSniffer packetSniffer = new PacketSniffer(name);
+        new Thread(packetSniffer).start();
     }
 
 }

@@ -1,9 +1,11 @@
 package Arp;
 
 import Packet.*;
+import Table.ARPTableObject;
 import org.jnetpcap.ByteBufferHandler;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapHeader;
+import sun.security.jca.GetInstance;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,12 +18,23 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArpHelper {
-    Map<String, String> ouiList;
+    private static ArpHelper instance;
 
-    public ArpHelper() {
+    Map<String, String> ouiList = new HashMap<>();
 
-        List<String> ouiEntries = new ArrayList<>();
+    public static ArpHelper GetInstance(){
+        if(instance == null) instance = new ArpHelper();
+        return instance;
+    }
+
+    private ArpHelper() {
         ouiList = new HashMap<>();
+
+        createOuiList();
+    }
+
+    private void createOuiList(){
+        List<String> ouiEntries = new ArrayList<>();
         try {
             Files.lines(Paths.get("ouidb.txt")).forEach(ouiEntries::add);
         } catch (IOException e) {
@@ -36,10 +49,10 @@ public class ArpHelper {
             if (tokens.length > 0) macAddress = tokens[0];
 
             // if can't parse mac, entry is invalid
-            if(macAddress.equals("")) continue;
+            if (macAddress.equals("")) continue;
 
             // 36-bit OUI def
-            if(macAddress.contains("/36")) macAddress = macAddress.substring(0,13);
+            if (macAddress.contains("/36")) macAddress = macAddress.substring(0, 13);
 
             if (tokens.length > 1) shortDef = tokens[1];
 
@@ -54,56 +67,23 @@ public class ArpHelper {
         }
     }
 
-    public List<Arp> getAll() {
-        List<Arp> response = new ArrayList<>();
+    public String getDefinition(byte[] mac){
+        String macString = Packet.macToString(mac);
+        if(macString == null) macString = "";
+        String desc = "-";
 
-        String rawArpCache = getARPCache().replace("-", "");
-        String[] cacheEntries = rawArpCache.split("\n");
+        String ouiMac = macString.substring(0, 13);
+        if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
+        else {
+            ouiMac = macString.substring(0, 8);
 
-        if (cacheEntries.length < 2) return null;
-
-        for (int i = 0; i < cacheEntries.length; i++) {
-            String tempOUI = cacheEntries[i].substring(0, 6);
-            String[] tokens = cacheEntries[i].split(",");
-
-            String tempIp = tokens[1];
-            String tempMac = tokens[0];
-
-            if (ouiList.containsKey(tempOUI)) {
-                response.add(new Arp(tempMac, tempIp, ouiList.get(tempOUI)));
-            }
-
+            if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
         }
 
-        return response;
+        return desc;
     }
 
-    public String getARPCache() {
-        String cmd = "arp -a";
-        Runtime run = Runtime.getRuntime();
-        String result = "";
-
-        try {
-            Process proc = run.exec(cmd);
-            BufferedReader buf = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line;
-            while ((line = buf.readLine()) != null) {
-                if (line.length() == 0) continue;
-
-                line = line.trim();
-
-                if (line.split("[ ]+").length != 3) continue;
-
-                result += line.split("[ ]+")[1] + "," + line.split("[ ]+")[0] + "\n";
-            }
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-
-        return (result);
-    }
-
-    public List<Arp> refreshCache() throws Exception {
+    public void refreshCache() {
 
         Pcap pcap = CurrentInstance.getPcap();
         byte[] mac = CurrentInstance.getMyMac();
@@ -113,31 +93,8 @@ public class ArpHelper {
         // init arp request packet that will be used to collect all devices on the network
         ArpPacket arpPacket = new ArpPacket(ArpPacket.Opcode.REQUEST,mac, myIp.clone(), targetIp, null);
 
-        List<Arp> arpList = new ArrayList<>();
-
-        ByteBufferHandler<List<Arp>> bbh = (PcapHeader packet, ByteBuffer b, List<Arp> arpListLoop) -> {
-            byte[] temp = new byte[b.remaining()];
-            b.get(temp);
-
-            // check if arp packet
-            if (temp[12] == 8 && temp[13] == 6) {
-                //check if reply
-                if (temp[21] == 2) {
-                    byte[] senderMac = Arrays.copyOfRange(temp, 22, 28);
-                    byte[] senderIp = Arrays.copyOfRange(temp, 28, 32);
-
-                    CurrentInstance.updateArpEntry(senderMac,senderIp);
-                }
-            }
-        };
-
-
         new Thread(() -> {
-            pcap.loop(0, bbh, null);
-        }).start();
-        new Thread(() -> {
-            byte[] initIp = Packet.getInitIp();
-            System.out.println(Packet.ipToString(initIp));
+            byte[] initIp = Arrays.copyOf(Packet.getInitIp(),Packet.getInitIp().length);
             double numIps = Math.pow(2, 32 - Packet.getPrefixLength(CurrentInstance.getNetMask()));
             int currIp = 0;
 
@@ -156,39 +113,30 @@ public class ArpHelper {
             }
 
         }).start();
+    }
 
-        Thread.sleep(2000);
-        pcap.breakloop();
+    public List<ARPTableObject> getCache(){
+        List<ARPTableObject> arpTableObjects = new ArrayList<>();
 
         // add descriptions to arp list
         for(ByteBuffer macBuffer : CurrentInstance.getArpCache().keySet()){
             if(macBuffer.array().length == 6){
                 ByteBuffer ipBuff = CurrentInstance.getArpCache().get(macBuffer);
 
-                String macString = Packet.macToString(macBuffer.array());
-                if(macString == null) macString = "";
-                String desc = "-";
+                String desc = getDefinition(macBuffer.array());
 
-                String ouiMac = macString.substring(0, 13);
-                if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
-                else {
-                    ouiMac = macString.substring(0, 8);
-
-                    if (ouiList.containsKey(ouiMac)) desc = ouiList.get(ouiMac);
-                }
-
-                arpList.add(new Arp(macString, Packet.ipToString(ipBuff.array()), desc));
+                arpTableObjects.add(new ARPTableObject(ipBuff.array(),macBuffer.array(), desc));
 
             }
         }
 
         // sort arp list by ip
-        arpList = arpList.stream().sorted((arp1,arp2) -> Integer.compare(
-                ByteBuffer.wrap(Packet.ipStringToByte(arp1.getIp())).getInt(),
-                ByteBuffer.wrap(Packet.ipStringToByte(arp2.getIp())).getInt())
+        arpTableObjects = arpTableObjects.stream().sorted((arp1,arp2) -> Integer.compare(
+                ByteBuffer.wrap(arp1.ip).getInt(),
+                ByteBuffer.wrap(arp2.ip).getInt())
         ).collect(Collectors.toList());
 
-        return arpList;
+        return arpTableObjects;
     }
 
 

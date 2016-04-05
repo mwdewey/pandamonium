@@ -1,6 +1,7 @@
 package Icmp;
 
 import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 
 public class IcmpPacket {
     private byte[] icmpPacket;
@@ -69,7 +70,53 @@ public class IcmpPacket {
         return icmpPacket;
     }
 
+    private void computeIPv4Checksum(){
+
+        // buff size is # of 32-bit words, minus 2 bytes for not including checksum
+        ByteBuffer target = ByteBuffer.allocate((version[0] & 0x0f) * 4 - 2);
+
+        target.put(version);
+        target.put(diffServiceField);
+        target.put(totalLength);
+        target.put(id);
+        target.put(flags);
+        target.put(frag_offset);
+        target.put(ttl);
+        target.put(protocol);
+        target.put(sourceIp);
+        target.put(destinationIp);
+
+        short sum = 0;
+        ShortBuffer values = target.asShortBuffer();
+        while (values.hasRemaining()) sum += values.get();
+
+        headerChecksum = new byte[]{(byte)(sum & 0xff),(byte)((sum >> 8) & 0xff)};
+    }
+
+    private void computeIcmpChecksum(){
+        ByteBuffer target = ByteBuffer.allocate(1000);
+
+        target.put(icmpType);
+        target.put(code);
+        target.put(id_be);
+        target.put(id_le);
+        target.put(seq_be);
+        target.put(seq_le);
+        target.put(data);
+
+        short sum = 0;
+        ShortBuffer values = target.asShortBuffer();
+        while (values.hasRemaining()) sum += values.get();
+
+        checksum = new byte[]{(byte)(sum & 0xff),(byte)((sum >> 8) & 0xff)};
+
+    }
+
     private void constructPacket() {
+
+        computeIPv4Checksum();
+        computeIcmpChecksum();
+
         ByteBuffer target = ByteBuffer.wrap(icmpPacket);
         target.put(destinationMac);
         target.put(sourceMac);

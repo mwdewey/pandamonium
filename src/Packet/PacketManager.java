@@ -4,6 +4,10 @@ import Application.GUI;
 import Arp.ArpProxy;
 import MetroComponents.MetroColors;
 import MetroComponents.MetroTable;
+import PacketHandlers.ARPHandler;
+import PacketHandlers.GUIHandler;
+import PacketHandlers.ICMPHandler;
+import PacketHandlers.PacketHandler;
 import Table.MainTableModel;
 import Table.TableObject;
 import com.sun.xml.internal.bind.v2.model.core.ID;
@@ -33,6 +37,8 @@ public class PacketManager {
     boolean connected = false;
     String targetIp;
 
+    List<PacketHandler> handlers;
+
     public PacketManager(){
         this.table = (MetroTable) GUI.getComponent(GUI.ID.MainPacketTable);
         this.model = (MainTableModel) table.getModel();
@@ -40,6 +46,12 @@ public class PacketManager {
         this.deviceManager = (DeviceManager) GUI.getComponent(GUI.ID.DeviceManager);
 
         this.packetStreams = new ArrayList<>();
+
+        // add all packet handlers to handlers
+        handlers = new ArrayList<>();
+        handlers.add(new ARPHandler());
+        handlers.add(new ICMPHandler());
+        handlers.add(new GUIHandler());
     }
 
     public void connect(String ip){
@@ -71,7 +83,6 @@ public class PacketManager {
         for (PcapIf device : alldevs) {
             try {
                 if (Arrays.equals(selectedDevice.ip,device.getAddresses().get(0).getAddr().getData())) {
-                    System.out.println(device.getName());
                     selectedDeviceFullName = device.getName();
                 }
             }catch (Exception e){}
@@ -82,58 +93,13 @@ public class PacketManager {
 
 
     public synchronized void receivePacket(Packet p){
-        try {
-            // if packet doesn't match target, drop
-            //System.out.println(Packet.ipToString(p.ipSrc) + "|" + Packet.ipToString(p.ipDst));
-            if (!(Packet.ipToString(p.ipSrc).equals(targetIp) || Packet.ipToString(p.ipDst).equals(targetIp))) return;
 
-            // check if packet is received or sent by target
+        // skip ip packets that are ipv6
+        if(p.isIp && p.isIpv6) return;
 
-            byte[] tempIp;
-            byte[] tempPort;
-            if (Packet.ipToString(p.ipSrc).equals(targetIp)) {
-                tempIp = p.ipDst;
-                tempPort = p.portDst;
-            } else {
-                tempIp = p.ipSrc;
-                tempPort = p.portSrc;
-            }
+        //for(PacketHandler ph : handlers) ph.getPacket(p);
+        handlers.get(0).getPacket(p);
 
-            boolean found = false;
-            for (PacketStream ps : packetStreams) {
-                if (Arrays.equals(ps.ip, tempIp) && Arrays.equals(ps.port, tempPort)) {
-                    found = true;
-
-                    if (Packet.ipToString(p.ipSrc).equals(targetIp)) {
-                        ps.bytesOut += p.length;
-                        model.setValueAt(ps.bytesOut, ps.row, 2);
-                        ps.pSent++;
-                        model.setValueAt(ps.pSent, ps.row, 4);
-                    } else {
-                        ps.bytesIn += p.length;
-                        model.setValueAt(ps.bytesIn, ps.row, 3);
-                        ps.pReceived++;
-                        model.setValueAt(ps.pReceived, ps.row, 5);
-                    }
-
-                }
-            }
-
-            if (!found) {
-                PacketStream ps = new PacketStream(tempIp, tempPort, p.length, model.getRowCount(), targetIp);
-                packetStreams.add(ps);
-
-                model.addElement(new TableObject(Packet.ipToString(tempIp), Packet.portToInt(tempPort), ps.bytesOut, ps.bytesIn, ps.pSent, ps.pReceived, ps.hostName,0));
-                table.colors.add(MetroColors.DARK_GRAY);
-                table.textColors.add(MetroColors.SPECIAL_TEXT);
-                new Thread(() -> {
-                    String temp = Packet.getHostName(Packet.ipToString(tempIp));
-                    if(Packet.ipToString(tempIp).equals(temp)) temp = "-";
-                    model.setValueAt(temp, ps.row, 6);
-                }).start();
-
-            }
-        }catch (Exception e){}
     }
 
     public void clear(){

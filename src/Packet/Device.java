@@ -32,7 +32,6 @@ public class Device {
                     this.netMask = addr.getNetmask().getData();
                     this.broadcastIp = addr.getBroadaddr().getData();
                 }
-                System.out.println(addr.toString());
             }
         }catch (Exception e){}
 

@@ -7,7 +7,7 @@ import java.util.List;
 public class MainTableModel extends AbstractTableModel {
 
     private static final String[] columnNames = {"Ip", "Port", "Sent", "Received", "pSent", "pReceived", "Host", "Ping"};
-    private final List<TableObject> list;
+    public List<TableObject> list;
 
     public MainTableModel() {
         list = new LinkedList<>();

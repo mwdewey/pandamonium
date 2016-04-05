@@ -10,7 +10,8 @@ public class GUI {
         MainTargetStatus,
         MainInterfaceStatus,
         PacketManager,
-        DeviceManager
+        DeviceManager,
+        ARPTable
     }
 
     private static Map<ID,Object> components = new HashMap<>();
